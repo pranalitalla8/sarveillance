@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'story_screen.dart';
 import 'explore_screen.dart';
 import 'analyze_screen.dart';
 import 'compare_screen.dart';
@@ -16,11 +17,11 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
+    const StoryScreen(),
     const ExploreScreen(),
     const AnalyzeScreen(),
     const CompareScreen(),
     const DiscoverScreen(),
-    const ProfileScreen(),
   ];
 
   @override
@@ -61,6 +62,11 @@ class _MainScreenState extends State<MainScreen> {
           type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(
+              icon: Icon(Icons.auto_stories),
+              activeIcon: Icon(Icons.auto_stories),
+              label: 'Story',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.explore),
               activeIcon: Icon(Icons.explore),
               label: 'Explore',
@@ -79,11 +85,6 @@ class _MainScreenState extends State<MainScreen> {
               icon: Icon(Icons.school),
               activeIcon: Icon(Icons.school),
               label: 'Discover',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
             ),
           ],
         ),
