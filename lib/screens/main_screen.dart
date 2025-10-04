@@ -51,13 +51,14 @@ class _MainScreenState extends State<MainScreen> {
         ),
         child: _screens[_currentIndex],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: _navigateToDataManagement,
-        icon: const Icon(Icons.cloud_download),
-        label: const Text('Data Sources'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
+        child: const Icon(Icons.cloud_download),
+        tooltip: 'Data Sources',
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
