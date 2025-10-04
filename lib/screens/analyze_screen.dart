@@ -4,6 +4,9 @@ import 'package:latlong2/latlong.dart';
 import '../widgets/layer_control_panel.dart';
 import '../widgets/measurement_tools.dart';
 import '../widgets/sar_viewer.dart';
+import '../widgets/region_info_panel.dart';
+import '../models/map_region.dart';
+import '../services/region_data_service.dart';
 
 class AnalyzeScreen extends StatefulWidget {
   const AnalyzeScreen({super.key});
@@ -16,6 +19,12 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   bool _showLayerPanel = false;
   bool _showMeasurementTools = false;
   String _selectedTool = 'none';
+  
+  // Region selection
+  MapRegion? _selectedRegion;
+  RegionData? _regionData;
+  final _regionService = RegionDataService();
+  bool _isLoadingData = false;
 
   @override
   Widget build(BuildContext context) {
@@ -74,14 +83,44 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
         children: [
           FlutterMap(
             options: MapOptions(
-              initialCenter: LatLng(37.8, -76.1), // Chesapeake Bay
+              initialCenter: const LatLng(37.8, -76.1), // Chesapeake Bay
               initialZoom: 9.0,
+              onTap: (tapPosition, point) => _handleMapTap(point),
             ),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.nasa.sar_app',
               ),
+              // Show selected region overlay
+              if (_selectedRegion != null) ...[
+                CircleLayer(
+                  circles: [
+                    CircleMarker(
+                      point: _selectedRegion!.center,
+                      color: Colors.blue.withValues(alpha: 0.2),
+                      borderColor: Colors.blue,
+                      borderStrokeWidth: 2,
+                      radius: _selectedRegion!.radiusKm * 1000, // Convert to meters for display
+                      useRadiusInMeter: true,
+                    ),
+                  ],
+                ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: _selectedRegion!.center,
+                      width: 40,
+                      height: 40,
+                      child: const Icon(
+                        Icons.place,
+                        color: Colors.blue,
+                        size: 40,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
           if (_showLayerPanel)
@@ -106,11 +145,26 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 onClose: () => setState(() => _showMeasurementTools = false),
               ),
             ),
-          Positioned(
-            left: 16,
-            bottom: 16,
-            child: _buildCompactInfoPanel(),
-          ),
+          // Region info panel
+          if (_selectedRegion != null)
+            Positioned(
+              left: 16,
+              top: 16,
+              bottom: 80,
+              child: RegionInfoPanel(
+                region: _selectedRegion!,
+                data: _regionData,
+                onClose: _clearSelection,
+                onLoadData: _loadRegionData,
+              ),
+            ),
+          // Compact info panel (only show when no region selected)
+          if (_selectedRegion == null)
+            Positioned(
+              left: 16,
+              bottom: 16,
+              child: _buildCompactInfoPanel(),
+            ),
           Positioned(
             right: 16,
             bottom: 16,
@@ -268,5 +322,85 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
         ),
       ),
     );
+  }
+
+  // Region selection handlers
+  void _handleMapTap(LatLng point) {
+    setState(() {
+      // Create a new region at the tapped location
+      _selectedRegion = MapRegion.circular(
+        id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
+        name: 'Selected Region',
+        center: point,
+        radiusKm: 10.0,
+      );
+      // Clear previous data
+      _regionData = null;
+    });
+
+    // Show instruction
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Region selected! Click "Load Data" to fetch SAR data.'),
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _clearSelection() {
+    setState(() {
+      _selectedRegion = null;
+      _regionData = null;
+      _isLoadingData = false;
+    });
+  }
+
+  Future<void> _loadRegionData() async {
+    if (_selectedRegion == null || _isLoadingData) return;
+
+    setState(() {
+      _isLoadingData = true;
+      _regionData = RegionData(
+        regionId: _selectedRegion!.id,
+        timestamp: DateTime.now(),
+        status: LoadingStatus.loading,
+      );
+    });
+
+    try {
+      final data = await _regionService.loadRegionData(_selectedRegion!);
+      
+      if (mounted) {
+        setState(() {
+          _regionData = data;
+          _isLoadingData = false;
+        });
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Data loaded! ${data.oilSpills != null ? "⚠️ Oil spills detected" : "✓ No issues detected"}',
+            ),
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: data.oilSpills != null ? Colors.orange : Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _regionData = RegionData(
+            regionId: _selectedRegion!.id,
+            timestamp: DateTime.now(),
+            status: LoadingStatus.error,
+            errorMessage: e.toString(),
+          );
+          _isLoadingData = false;
+        });
+      }
+    }
   }
 }
