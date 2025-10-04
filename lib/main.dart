@@ -15,7 +15,7 @@ class NasaSarApp extends StatelessWidget {
       title: 'NASA SAR Visualization',
       theme: AppTheme.darkTheme,
       home: const MainScreen(),
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false  ,
     );
   }
 }

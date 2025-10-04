@@ -1,6 +1,6 @@
 {
-    "name": "sarveillance",
-    "short_name": "sarveillance",
+    "name": "nasa_space_apps",
+    "short_name": "nasa_space_apps",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
