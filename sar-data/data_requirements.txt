@@ -1,0 +1,31 @@
+SAR Data Requirements for NASA Space Apps Challenge
+
+PRIORITY DATA TYPES:
+- Oil spill detection in coastal waters
+- Illegal ship tracking and identification
+- Sea ice monitoring and change detection
+
+TECHNICAL SPECIFICATIONS:
+- Multi-frequency: C-band, L-band, X-band
+- Multi-polarization: VV, VH, HH, HV
+- Geographic focus: DMV area (DC/Maryland/Virginia)
+- Temporal resolution: Monthly/weekly time series
+
+KEY INDICES TO CALCULATE:
+- NDVI (vegetation)
+- NDCI (chlorophyll)
+- Water Quality Index
+- Oil detection algorithms
+- Ship detection parameters
+
+OUTPUT FORMAT:
+- Polygon/vector data for app integration
+- Before/after comparison datasets
+- Time series for trend analysis
+- Geographic coordinates for DMV personalization
+
+DELIVERABLES:
+- Processed SAR data layers
+- Analysis results in JSON/CSV format
+- Visualization data for Flutter widgets
+- Documentation of methodologies used
