@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../widgets/layer_control_panel.dart';
 import '../widgets/measurement_tools.dart';
 import '../widgets/sar_viewer.dart';
@@ -70,7 +72,18 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
       ),
       body: Stack(
         children: [
-          const SarViewer(),
+          FlutterMap(
+            options: MapOptions(
+              initialCenter: LatLng(37.8, -76.1), // Chesapeake Bay
+              initialZoom: 9.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.nasa.sar_app',
+              ),
+            ],
+          ),
           if (_showLayerPanel)
             Positioned(
               right: 16,
