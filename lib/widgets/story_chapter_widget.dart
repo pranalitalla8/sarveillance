@@ -89,24 +89,28 @@ class _StoryChapterWidgetState extends State<StoryChapterWidget>
   }
 
   Widget _buildChapterContent() {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return SafeArea(
-      child: Container(
-        constraints: BoxConstraints(
-          minHeight: MediaQuery.of(context).size.height - 100,
-        ),
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 40), // Space for progress bar
-            _buildChapterHeader(),
-            const SizedBox(height: 32),
-            SizedBox(
-              height: MediaQuery.of(context).size.height - 300,
-              child: _buildInteractiveContent(),
-            ),
-            const SizedBox(height: 100), // Space for navigation
-          ],
+      child: SingleChildScrollView(
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: screenHeight * 0.8,
+          ),
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 40), // Space for progress bar
+              _buildChapterHeader(),
+              const SizedBox(height: 32),
+              SizedBox(
+                height: screenHeight * 0.5,
+                child: _buildInteractiveContent(),
+              ),
+              const SizedBox(height: 100), // Space for navigation
+            ],
+          ),
         ),
       ),
     );
