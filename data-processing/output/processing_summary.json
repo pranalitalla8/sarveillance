@@ -1,0 +1,43 @@
+{
+  "processing_info": {
+    "timestamp": "2024-01-01T00:00:00Z",
+    "location": "Chesapeake Bay",
+    "data_type": "SAR Analysis",
+    "processing_method": "Sample Data Generation"
+  },
+  "indices_calculated": {
+    "NDVI": {
+      "formula": "(NIR - Red) / (NIR + Red)",
+      "range": "[-1, 1]",
+      "interpretation": "Vegetation health"
+    },
+    "NDCI": {
+      "formula": "(Red - Green) / (Red + Green)",
+      "range": "[-1, 1]",
+      "interpretation": "Chlorophyll content"
+    },
+    "WQI": {
+      "formula": "0.6 \u00d7 SAR + 0.4 \u00d7 NDVI",
+      "range": "[0, 1]",
+      "interpretation": "Water quality"
+    }
+  },
+  "output_files": [
+    "sample_sar_data.csv",
+    "flutter_sar_data.json",
+    "processing_summary.json"
+  ],
+  "statistics": {
+    "total_points": 1000,
+    "data_range": {
+      "longitude": [
+        -76.5,
+        -76.0
+      ],
+      "latitude": [
+        38.0,
+        39.0
+      ]
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "name": "SAR Ship Detection System",
+  "version": "1.0",
+  "detection_method": "Rule-based + Shape Analysis",
+  "ship_types": {
+    "cargo_ships": {
+      "length_range": [
+        100,
+        400
+      ],
+      "width_range": [
+        15,
+        60
+      ],
+      "backscatter_range": [
+        0.4,
+        0.8
+      ],
+      "typical_shape": "rectangular"
+    },
+    "fishing_vessels": {
+      "length_range": [
+        20,
+        80
+      ],
+      "width_range": [
+        5,
+        15
+      ],
+      "backscatter_range": [
+        0.3,
+        0.6
+      ],
+      "typical_shape": "elongated"
+    },
+    "naval_vessels": {
+      "length_range": [
+        80,
+        200
+      ],
+      "width_range": [
+        10,
+        25
+      ],
+      "backscatter_range": [
+        0.5,
+        0.9
+      ],
+      "typical_shape": "streamlined"
+    }
+  },
+  "detection_parameters": {
+    "backscatter_threshold": 0.4,
+    "size_constraints": {
+      "min_length": 20,
+      "max_length": 500,
+      "min_width": 5,
+      "max_width": 100
+    },
+    "shape_analysis": {
+      "aspect_ratio_min": 0.2,
+      "aspect_ratio_max": 5.0,
+      "circularity_threshold": 0.3
+    }
+  },
+  "validation_criteria": {
+    "minimum_confidence": 0.6,
+    "maximum_false_positive_rate": 0.05,
+    "minimum_recall_rate": 0.85
+  }
+}

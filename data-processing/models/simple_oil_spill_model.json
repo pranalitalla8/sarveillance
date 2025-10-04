@@ -1,0 +1,23 @@
+{
+  "model_type": "Rule-based Oil Spill Detection",
+  "accuracy": 1.0,
+  "rules": {
+    "backscatter_threshold": 0.25,
+    "texture_threshold": 0.2,
+    "rules": [
+      {
+        "condition": "backscatter < 0.25 AND texture < 0.2",
+        "prediction": 1,
+        "confidence": 0.9
+      },
+      {
+        "condition": "backscatter >= 0.3 AND texture >= 0.15",
+        "prediction": 0,
+        "confidence": 0.85
+      }
+    ]
+  },
+  "training_samples": 1000,
+  "correct_predictions": 1000,
+  "trained_at": "2025-10-04T12:23:40.853861"
+}

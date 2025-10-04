@@ -1,0 +1,37 @@
+{
+  "name": "SAR Oil Spill Detection Algorithm",
+  "version": "1.0",
+  "detection_method": "Multi-threshold Analysis",
+  "parameters": {
+    "backscatter_thresholds": {
+      "oil_spill_max": 0.25,
+      "normal_sea_min": 0.3,
+      "uncertainty_range": [
+        0.25,
+        0.3
+      ]
+    },
+    "texture_analysis": {
+      "oil_spill_max": 0.2,
+      "normal_sea_min": 0.15,
+      "smoothness_weight": 0.7
+    },
+    "size_constraints": {
+      "min_oil_spill_area": 100,
+      "max_oil_spill_area": 10000
+    }
+  },
+  "processing_steps": [
+    "SAR data preprocessing",
+    "Backscatter thresholding",
+    "Texture analysis",
+    "Size filtering",
+    "Confidence calculation",
+    "Result validation"
+  ],
+  "output_format": {
+    "detection_mask": "Binary image (0/1)",
+    "confidence_map": "Probability values (0-1)",
+    "metadata": "Detection parameters and statistics"
+  }
+}

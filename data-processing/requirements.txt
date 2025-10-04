@@ -1,0 +1,25 @@
+# Data Processing Requirements for NASA SAR App
+# Core data processing libraries
+rasterio>=1.3.0
+pandas>=2.0.0
+geopandas>=0.13.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Geospatial data handling
+shapely>=2.0.0
+fiona>=1.9.0
+pyproj>=3.5.0
+
+# Image processing and analysis
+opencv-python>=4.8.0
+Pillow>=10.0.0
+scipy>=1.11.0
+
+# Data visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Additional utilities
+tqdm>=4.65.0
+requests>=2.31.0

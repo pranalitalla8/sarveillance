@@ -1,0 +1,7 @@
+{
+  "dataset": "M4D Oil Spill Dataset",
+  "validation_samples": 500,
+  "accuracy": 1.0,
+  "correct_predictions": 500,
+  "validated_at": "2025-10-04T12:23:40.925741"
+}
