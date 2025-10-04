@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import '../data/mock_data.dart';
 import '../models/study_area.dart';
 import '../widgets/study_area_card.dart';
 import '../widgets/category_filter.dart';
 
+// Test comment added
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
 
@@ -16,7 +15,6 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   String selectedCategory = 'All';
   List<StudyArea> filteredAreas = MockData.studyAreas;
-  bool showMapView = true;
 
   void _filterByCategory(String category) {
     setState(() {
@@ -48,17 +46,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(showMapView ? Icons.grid_view : Icons.map),
-            onPressed: () {
-              setState(() {
-                showMapView = !showMapView;
-              });
-            },
-            tooltip: showMapView ? 'Show Grid View' : 'Show Map View',
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -88,21 +75,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
           ),
           Expanded(
-            child: showMapView
-                ? FlutterMap(
-                    options: MapOptions(
-                      initialCenter: LatLng(37.8, -76.1), // Chesapeake Bay
-                      initialZoom: 9.0,
-                    ),
-                    children: [
-                      TileLayer(
-                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        userAgentPackageName: 'com.nasa.sar_app',
-                      ),
-                    ],
-                  )
-                : filteredAreas.isEmpty
-                    ? Center(
+            child: filteredAreas.isEmpty
+                ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
