@@ -12,10 +12,6 @@ class CategoryFilter extends StatelessWidget {
 
   static const List<String> categories = [
     'All',
-    'Disasters',
-    'Climate',
-    'Urban',
-    'Natural Features',
   ];
 
   @override
