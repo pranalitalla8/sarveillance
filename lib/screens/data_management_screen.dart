@@ -47,7 +47,40 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
     });
 
     try {
-      final results = await _dataService.downloadAllDataSources();
+      // Show downloading message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Downloading all data sources... This may take a while'),
+            duration: Duration(seconds: 3),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+
+      final results = <String, bool>{};
+      
+      // Download each data source
+      for (final source in _dataSources) {
+        final sourceName = source.name.toLowerCase().replaceAll(' ', '_');
+        final fileId = source.metadata['file_id'] as String?;
+        
+        if (fileId != null) {
+          final fileName = '${sourceName}.csv';
+          final subfolder = source.type;
+          
+          final success = await _dataService.downloadFileFromDrive(
+            fileId: fileId,
+            fileName: fileName,
+            subfolder: subfolder,
+          );
+          
+          results[sourceName] = success;
+        } else {
+          results[sourceName] = false;
+        }
+      }
+      
       setState(() {
         _downloadResults = results;
         _isLoading = false;
@@ -69,23 +102,55 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
     });
 
     try {
-      // For now, all data sources are simulated with mock data
-      // Simulate a delay to show loading state
-      await Future.delayed(const Duration(milliseconds: 800));
+      // Find the data source configuration
+      final sourceConfig = _dataSources.firstWhere(
+        (source) => source.name.toLowerCase().replaceAll(' ', '_') == sourceName,
+        orElse: () => _dataSources.first,
+      );
       
-      bool success = true;
+      // Get file ID from metadata
+      final fileId = sourceConfig.metadata['file_id'] as String?;
+      
+      if (fileId == null) {
+        throw Exception('File ID not found for $sourceName');
+      }
+      
+      // Show downloading message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Downloading... Please wait'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      
+      // Download the file
+      final fileName = '${sourceName}.csv';
+      final subfolder = sourceConfig.type;
+      
+      final success = await _dataService.downloadFileFromDrive(
+        fileId: fileId,
+        fileName: fileName,
+        subfolder: subfolder,
+      );
       
       setState(() {
         _downloadResults[sourceName] = success;
         _isLoading = false;
       });
 
-      _showSuccessDialog('Data source loaded successfully!');
+      if (success) {
+        _showSuccessDialog('Downloaded successfully to device!');
+      } else {
+        _showErrorDialog('Download failed. Please check your internet connection.');
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      _showErrorDialog('Loading failed: $e');
+      _showErrorDialog('Download failed: $e');
     }
   }
 
