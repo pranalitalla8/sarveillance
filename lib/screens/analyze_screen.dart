@@ -5,9 +5,13 @@ import '../widgets/layer_control_panel.dart';
 import '../widgets/measurement_tools.dart';
 import '../widgets/sar_viewer.dart';
 import '../widgets/region_info_panel.dart';
+import '../widgets/spill_detail_popup.dart';
 import '../models/map_region.dart';
+import '../models/oil_spill_data.dart';
 import '../services/region_data_service.dart';
+import '../services/sar_data_service.dart';
 import 'time_series_screen.dart';
+import 'data_management_screen.dart';
 
 class AnalyzeScreen extends StatefulWidget {
   const AnalyzeScreen({super.key});
@@ -20,12 +24,43 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   bool _showLayerPanel = false;
   bool _showMeasurementTools = false;
   String _selectedTool = 'none';
-  
-  // Region selection
-  MapRegion? _selectedRegion;
-  RegionData? _regionData;
-  final _regionService = RegionDataService();
-  bool _isLoadingData = false;
+  List<OilSpillData> _oilSpillData = [];
+  bool _isLoading = true;
+  final SARDataService _sarDataService = SARDataService();
+  final MapController _mapController = MapController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSARData();
+  }
+
+  Future<void> _loadSARData() async {
+    print('_loadSARData() called');
+    try {
+      print('Calling _sarDataService.loadSARData()...');
+      final data = await _sarDataService.loadSARData();
+      print('Received data: ${data.length} points');
+      setState(() {
+        _oilSpillData = data;
+        _isLoading = false;
+      });
+      print('Loaded ${data.length} oil spill data points');
+    } catch (e, stackTrace) {
+      print('Error loading SAR data: $e');
+      print('Stack trace: $stackTrace');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showSpillDetails(OilSpillData spillData) {
+    showDialog(
+      context: context,
+      builder: (context) => SpillDetailPopup(spillData: spillData),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +109,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             tooltip: 'Measurement Tools',
           ),
           IconButton(
+<<<<<<< HEAD
             icon: const Icon(Icons.show_chart),
             onPressed: () => _navigateToTimeSeries(),
             tooltip: 'Time Series Analysis',
@@ -82,53 +118,109 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             icon: const Icon(Icons.settings),
             onPressed: () => _showSettings(),
             tooltip: 'Settings',
+=======
+            icon: const Icon(Icons.storage),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DataManagementScreen(),
+                ),
+              );
+            },
+            tooltip: 'Data Sources',
+>>>>>>> 76acc4515e4bc48a263cd353a80771c54c408d91
           ),
         ],
       ),
       body: Stack(
         children: [
           FlutterMap(
+            mapController: _mapController,
             options: MapOptions(
               initialCenter: const LatLng(37.8, -76.1), // Chesapeake Bay
               initialZoom: 9.0,
-              onTap: (tapPosition, point) => _handleMapTap(point),
+              minZoom: 2.0,
+              maxZoom: 18.0,
+              // Lock rotation and tilt
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
+              // Constrain panning to world bounds
+              cameraConstraint: CameraConstraint.contain(
+                bounds: LatLngBounds(
+                  const LatLng(-90, -180),
+                  const LatLng(90, 180),
+                ),
+              ),
+              onTap: (tapPosition, point) {
+                // Find nearest marker when map is tapped
+                _findAndShowNearestSpill(point);
+              },
             ),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.nasa.sar_app',
               ),
-              // Show selected region overlay
-              if (_selectedRegion != null) ...[
+              if (!_isLoading && _oilSpillData.isNotEmpty)
                 CircleLayer(
-                  circles: [
-                    CircleMarker(
-                      point: _selectedRegion!.center,
-                      color: Colors.blue.withValues(alpha: 0.2),
-                      borderColor: Colors.blue,
+                  circles: _oilSpillData.map((point) {
+                    Color markerColor;
+                    double radius;
+
+                    // Color based on oil_candidate classification
+                    if (point.isOilCandidate) {
+                      // Red for oil candidates
+                      markerColor = Colors.red.withOpacity(0.7);
+                      radius = 8;
+                    } else {
+                      // Blue for water
+                      markerColor = Colors.blue.withOpacity(0.5);
+                      radius = 5;
+                    }
+
+                    // Highlight ship-related oil spills in orange
+                    if (point.isOilCandidate && point.isShipRelated) {
+                      markerColor = Colors.orange.withOpacity(0.8);
+                      radius = 10;
+                    }
+
+                    return CircleMarker(
+                      point: LatLng(point.latitude, point.longitude),
+                      color: markerColor,
+                      borderColor: Colors.white.withOpacity(0.5),
                       borderStrokeWidth: 2,
-                      radius: _selectedRegion!.radiusKm * 1000, // Convert to meters for display
-                      useRadiusInMeter: true,
-                    ),
-                  ],
+                      radius: radius,
+                    );
+                  }).toList(),
                 ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: _selectedRegion!.center,
-                      width: 40,
-                      height: 40,
-                      child: const Icon(
-                        Icons.place,
-                        color: Colors.blue,
-                        size: 40,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ],
           ),
+          if (_isLoading)
+            Center(
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Loading SAR Data...',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Please wait...',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           if (_showLayerPanel)
             Positioned(
               right: 16,
@@ -151,26 +243,11 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 onClose: () => setState(() => _showMeasurementTools = false),
               ),
             ),
-          // Region info panel
-          if (_selectedRegion != null)
-            Positioned(
-              left: 16,
-              top: 16,
-              bottom: 80,
-              child: RegionInfoPanel(
-                region: _selectedRegion!,
-                data: _regionData,
-                onClose: _clearSelection,
-                onLoadData: _loadRegionData,
-              ),
-            ),
-          // Compact info panel (only show when no region selected)
-          if (_selectedRegion == null)
-            Positioned(
-              left: 16,
-              bottom: 16,
-              child: _buildCompactInfoPanel(),
-            ),
+          Positioned(
+            left: 16,
+            bottom: 16,
+            child: _buildCompactInfoPanel(),
+          ),
           Positioned(
             right: 16,
             bottom: 16,
@@ -181,30 +258,96 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     );
   }
 
+  void _findAndShowNearestSpill(LatLng tappedPoint) {
+    if (_oilSpillData.isEmpty) return;
+
+    // Find the nearest spill within a reasonable distance
+    OilSpillData? nearestSpill;
+    double minDistance = double.infinity;
+    const double maxDistanceKm = 0.5; // 500 meters
+
+    for (final spill in _oilSpillData) {
+      final spillPoint = LatLng(spill.latitude, spill.longitude);
+      final distance = const Distance().as(LengthUnit.Kilometer, tappedPoint, spillPoint);
+
+      if (distance < minDistance && distance < maxDistanceKm) {
+        minDistance = distance;
+        nearestSpill = spill;
+      }
+    }
+
+    if (nearestSpill != null) {
+      _showSpillDetails(nearestSpill);
+    }
+  }
+
   Widget _buildCompactInfoPanel() {
+    final oilPoints = _oilSpillData.where((p) => p.isOilCandidate).length;
+    final waterPoints = _oilSpillData.where((p) => !p.isOilCandidate).length;
+    final shipRelated = _oilSpillData.where((p) => p.isShipRelated).length;
+    final stats = _sarDataService.getStatistics();
+
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Hurricane Ian Impact',
+              'Chesapeake Bay SAR Analysis',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 8),
             Row(
               children: [
+                const Icon(Icons.circle, size: 8, color: Colors.red),
+                const SizedBox(width: 4),
+                Text('Oil: $oilPoints', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(width: 12),
+                const Icon(Icons.circle, size: 8, color: Colors.blue),
+                const SizedBox(width: 4),
+                Text('Water: $waterPoints', style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+            if (shipRelated > 0) ...[
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.circle, size: 8, color: Colors.orange),
+                  const SizedBox(width: 4),
+                  Text('Ship Related: $shipRelated',
+                      style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ],
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.calendar_today, size: 12),
+                const SizedBox(width: 4),
+                Text(
+                  'Dates: ${stats['unique_dates']}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(width: 8),
                 const Icon(Icons.satellite, size: 12),
                 const SizedBox(width: 4),
                 Text(
-                  'Sentinel-1 • 2 days ago',
+                  'Total: ${_oilSpillData.length}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tap a marker for details',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontStyle: FontStyle.italic,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  ),
             ),
           ],
         ),
@@ -217,32 +360,33 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         FloatingActionButton(
-          heroTag: "analyze",
+          heroTag: "filter",
           mini: true,
-          onPressed: () => _showAnalysisOptions(),
-          tooltip: 'Analyze',
+          onPressed: () => _showFilterOptions(),
+          tooltip: 'Filter Data',
+          child: const Icon(Icons.filter_list),
+        ),
+        const SizedBox(height: 8),
+        FloatingActionButton(
+          heroTag: "stats",
+          mini: true,
+          onPressed: () => _showStatistics(),
+          tooltip: 'Statistics',
           child: const Icon(Icons.analytics),
         ),
         const SizedBox(height: 8),
         FloatingActionButton(
-          heroTag: "change",
+          heroTag: "refresh",
           mini: true,
-          onPressed: () => _performAnalysis('Change Detection'),
-          tooltip: 'Change Detection',
-          child: const Icon(Icons.timeline),
-        ),
-        const SizedBox(height: 8),
-        FloatingActionButton(
-          heroTag: "interferometry",
-          mini: true,
-          onPressed: () => _performAnalysis('Interferometry'),
-          tooltip: 'Interferometry',
-          child: const Icon(Icons.speed),
+          onPressed: () => _loadSARData(),
+          tooltip: 'Refresh Data',
+          child: const Icon(Icons.refresh),
         ),
       ],
     );
   }
 
+<<<<<<< HEAD
   void _navigateToTimeSeries() {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -252,6 +396,10 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   }
 
   void _showSettings() {
+=======
+
+  void _showFilterOptions() {
+>>>>>>> 76acc4515e4bc48a263cd353a80771c54c408d91
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -260,26 +408,48 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Analysis Settings',
+              'Filter Options',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            const ListTile(
-              leading: Icon(Icons.palette),
-              title: Text('Color Map'),
-              subtitle: Text('Viridis'),
-              trailing: Icon(Icons.chevron_right),
+            ListTile(
+              leading: const Icon(Icons.water_drop, color: Colors.red),
+              title: const Text('Show Oil Candidates Only'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _oilSpillData = _sarDataService.getOilCandidates();
+                });
+              },
             ),
-            const ListTile(
-              leading: Icon(Icons.tune),
-              title: Text('Contrast'),
-              subtitle: Text('Auto'),
-              trailing: Icon(Icons.chevron_right),
+            ListTile(
+              leading: const Icon(Icons.water, color: Colors.blue),
+              title: const Text('Show Water Points Only'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _oilSpillData = _sarDataService.getWaterPoints();
+                });
+              },
             ),
-            const ListTile(
-              leading: Icon(Icons.grid_on),
-              title: Text('Grid Overlay'),
-              trailing: Switch(value: true, onChanged: null),
+            if (_sarDataService.getShipRelatedPoints().isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.directions_boat, color: Colors.orange),
+                title: const Text('Show Ship-Related Only'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _oilSpillData = _sarDataService.getShipRelatedPoints();
+                  });
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.refresh),
+              title: const Text('Show All Data'),
+              onTap: () {
+                Navigator.pop(context);
+                _loadSARData();
+              },
             ),
           ],
         ),
@@ -287,36 +457,42 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     );
   }
 
-  void _showAnalysisOptions() {
+  void _showStatistics() {
+    final stats = _sarDataService.getStatistics();
+
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Analysis Tools',
+              'SAR Data Statistics',
               style: Theme.of(context).textTheme.titleLarge,
             ),
+            const SizedBox(height: 20),
+            _buildStatRow(Icons.dataset, 'Total Data Points', '${stats['total']}'),
+            _buildStatRow(
+                Icons.warning, 'Oil Candidates', '${stats['oil_candidates']}'),
+            _buildStatRow(Icons.water, 'Water Points', '${stats['water_points']}'),
+            if (stats['ship_related'] > 0)
+              _buildStatRow(Icons.directions_boat, 'Ship Related',
+                  '${stats['ship_related']}'),
+            if (stats['high_risk'] > 0)
+              _buildStatRow(
+                  Icons.error, 'High Risk (Oil + Ship)', '${stats['high_risk']}'),
+            _buildStatRow(
+                Icons.calendar_today, 'Unique Dates', '${stats['unique_dates']}'),
             const SizedBox(height: 16),
-            ListTile(
-              leading: const Icon(Icons.timeline),
-              title: const Text('Change Detection'),
-              subtitle: const Text('Compare temporal datasets'),
-              onTap: () => _performAnalysis('Change Detection'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.speed),
-              title: const Text('Interferometry'),
-              subtitle: const Text('Measure ground deformation'),
-              onTap: () => _performAnalysis('Interferometry'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.category),
-              title: const Text('Classification'),
-              subtitle: const Text('Classify land cover types'),
-              onTap: () => _performAnalysis('Classification'),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close),
+                label: const Text('Close'),
+              ),
             ),
           ],
         ),
@@ -324,97 +500,28 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     );
   }
 
-  void _performAnalysis(String analysisType) {
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Starting $analysisType analysis...'),
-        behavior: SnackBarBehavior.floating,
-        action: SnackBarAction(
-          label: 'View Progress',
-          onPressed: () {},
-        ),
-      ),
-    );
-  }
-
-  // Region selection handlers
-  void _handleMapTap(LatLng point) {
-    setState(() {
-      // Create a new region at the tapped location
-      _selectedRegion = MapRegion.circular(
-        id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
-        name: 'Selected Region',
-        center: point,
-        radiusKm: 10.0,
-      );
-      // Clear previous data
-      _regionData = null;
-    });
-
-    // Show instruction
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Region selected! Click "Load Data" to fetch SAR data.'),
-        duration: Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  void _clearSelection() {
-    setState(() {
-      _selectedRegion = null;
-      _regionData = null;
-      _isLoadingData = false;
-    });
-  }
-
-  Future<void> _loadRegionData() async {
-    if (_selectedRegion == null || _isLoadingData) return;
-
-    setState(() {
-      _isLoadingData = true;
-      _regionData = RegionData(
-        regionId: _selectedRegion!.id,
-        timestamp: DateTime.now(),
-        status: LoadingStatus.loading,
-      );
-    });
-
-    try {
-      final data = await _regionService.loadRegionData(_selectedRegion!);
-      
-      if (mounted) {
-        setState(() {
-          _regionData = data;
-          _isLoadingData = false;
-        });
-
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Data loaded! ${data.oilSpills != null ? "⚠️ Oil spills detected" : "✓ No issues detected"}',
+  Widget _buildStatRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
-            duration: const Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: data.oilSpills != null ? Colors.orange : Colors.green,
           ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _regionData = RegionData(
-            regionId: _selectedRegion!.id,
-            timestamp: DateTime.now(),
-            status: LoadingStatus.error,
-            errorMessage: e.toString(),
-          );
-          _isLoadingData = false;
-        });
-      }
-    }
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+          ),
+        ],
+      ),
+    );
   }
 }

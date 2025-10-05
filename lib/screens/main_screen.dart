@@ -5,7 +5,6 @@ import 'analyze_screen.dart';
 import 'compare_screen.dart';
 import 'discover_screen.dart';
 import 'profile_screen.dart';
-import 'data_management_screen.dart';
  
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -25,14 +24,6 @@ class _MainScreenState extends State<MainScreen> {
     const DiscoverScreen(),
   ];
 
-  void _navigateToDataManagement() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const DataManagementScreen(),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,14 +42,6 @@ class _MainScreenState extends State<MainScreen> {
         ),
         child: _screens[_currentIndex],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToDataManagement,
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.cloud_download),
-        tooltip: 'Data Sources',
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
