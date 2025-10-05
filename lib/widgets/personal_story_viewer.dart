@@ -235,7 +235,7 @@ class _PersonalStoryViewerState extends State<PersonalStoryViewer>
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 120,
+          height: 180, // Increased from 120 to 180 for better visibility
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: locations.length,
@@ -264,7 +264,7 @@ class _PersonalStoryViewerState extends State<PersonalStoryViewer>
             offset: Offset(0, wave),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              width: 140,
+              width: 160, // Increased from 140 to 160 for more content space
               margin: const EdgeInsets.only(right: 16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
