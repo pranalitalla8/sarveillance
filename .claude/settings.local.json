@@ -10,7 +10,8 @@
       "Bash(earthengine authenticate:*)",
       "Bash(gcloud projects:*)",
       "Bash(curl:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(cd:*)"
     ],
     "deny": [],
     "ask": []

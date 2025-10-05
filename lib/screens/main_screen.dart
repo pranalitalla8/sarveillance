@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'story_screen.dart';
 import 'explore_screen.dart';
 import 'analyze_screen.dart';
-import 'compare_screen.dart';
 import 'discover_screen.dart';
-import 'profile_screen.dart';
- 
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -20,7 +18,6 @@ class _MainScreenState extends State<MainScreen> {
     const StoryScreen(),
     const ExploreScreen(),
     const AnalyzeScreen(),
-    const CompareScreen(),
     const DiscoverScreen(),
   ];
 
@@ -75,11 +72,6 @@ class _MainScreenState extends State<MainScreen> {
               icon: Icon(Icons.analytics),
               activeIcon: Icon(Icons.analytics),
               label: 'Analyze',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.compare),
-              activeIcon: Icon(Icons.compare),
-              label: 'Compare',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.school),
