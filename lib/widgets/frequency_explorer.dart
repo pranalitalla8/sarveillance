@@ -53,7 +53,7 @@ class _FrequencyExplorerState extends State<FrequencyExplorer>
     return Column(
       children: [
         _buildMirrorTitle(),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         Text(
           'Tap each mirror to see what it reveals:',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -62,14 +62,10 @@ class _FrequencyExplorerState extends State<FrequencyExplorer>
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 16),
         Expanded(
           child: _buildFrequencyMirrors(),
         ),
-        if (_selectedFrequency != null) ...[
-          const SizedBox(height: 20),
-          _buildFrequencyInsight(),
-        ],
       ],
     );
   }
@@ -109,9 +105,9 @@ class _FrequencyExplorerState extends State<FrequencyExplorer>
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
-        childAspectRatio: 0.8,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.75, // Even taller cards to fit all content
       ),
       itemCount: frequencies.length,
       itemBuilder: (context, index) {
@@ -170,35 +166,37 @@ class _FrequencyExplorerState extends State<FrequencyExplorer>
                   : null,
             ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildMirrorFrame(frequency, isRevealed, shimmer),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
                   Text(
                     frequency,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
+                      fontSize: 15,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   if (isRevealed) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 6),
                     Text(
                       _getFrequencyCapability(frequency),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 12,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ] else ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 6),
                     Icon(
                       Icons.help_outline,
                       color: Colors.white.withValues(alpha: 0.6),
-                      size: 24,
+                      size: 20,
                     ),
                   ],
                 ],
@@ -212,8 +210,8 @@ class _FrequencyExplorerState extends State<FrequencyExplorer>
 
   Widget _buildMirrorFrame(String frequency, bool isRevealed, double shimmer) {
     return Container(
-      width: 100,
-      height: 100,
+      width: 80,
+      height: 80,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: RadialGradient(
@@ -236,7 +234,7 @@ class _FrequencyExplorerState extends State<FrequencyExplorer>
               : Icon(
                   Icons.visibility_off,
                   key: ValueKey('hidden_$frequency'),
-                  size: 40,
+                  size: 32,
                   color: Colors.white.withValues(alpha: 0.6),
                 ),
         ),
@@ -255,8 +253,8 @@ class _FrequencyExplorerState extends State<FrequencyExplorer>
           scale: _revealController.value,
           child: Container(
             key: ValueKey('revealed_$frequency'),
-            width: 60,
-            height: 60,
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: color.withValues(alpha: 0.8),
@@ -271,7 +269,7 @@ class _FrequencyExplorerState extends State<FrequencyExplorer>
             child: Icon(
               icon,
               color: Colors.white,
-              size: 30,
+              size: 28,
             ),
           ),
         );
@@ -279,97 +277,124 @@ class _FrequencyExplorerState extends State<FrequencyExplorer>
     );
   }
 
-  Widget _buildFrequencyInsight() {
-    if (_selectedFrequency == null) return const SizedBox.shrink();
+  Widget _buildFrequencyInsightDialog(String frequency) {
+    final insight = _getFrequencyInsight(frequency);
+    final riddle = _getFrequencyRiddle(frequency);
 
-    final insight = _getFrequencyInsight(_selectedFrequency!);
-    final riddle = _getFrequencyRiddle(_selectedFrequency!);
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: [
-            _getFrequencyColor(_selectedFrequency!).withValues(alpha: 0.2),
-            Colors.black.withValues(alpha: 0.6),
-          ],
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.75,
         ),
-        border: Border.all(
-          color: _getFrequencyColor(_selectedFrequency!),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.lightbulb,
-                color: _getFrequencyColor(_selectedFrequency!),
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '$_selectedFrequency Reveals:',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              _getFrequencyColor(frequency).withValues(alpha: 0.9),
+              Colors.black,
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            insight,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.9),
-              height: 1.4,
-            ),
+          border: Border.all(
+            color: _getFrequencyColor(frequency),
+            width: 2,
           ),
-          if (riddle.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.white.withValues(alpha: 0.1),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.quiz,
-                        color: const Color(0xFF8B5CF6),
-                        size: 20,
+                  Icon(
+                    _getFrequencyIcon(frequency),
+                    color: _getFrequencyColor(frequency),
+                    size: 28,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      '$frequency Reveals:',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(width: 8),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.of(context).pop();
+                    },
+                    icon: const Icon(Icons.close),
+                    color: Colors.white,
+                    iconSize: 28,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Text(
+                insight,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.95),
+                  height: 1.5,
+                ),
+              ),
+              if (riddle.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white.withValues(alpha: 0.1),
+                    border: Border.all(
+                      color: const Color(0xFF8B5CF6).withValues(alpha: 0.5),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.quiz,
+                            color: const Color(0xFF8B5CF6),
+                            size: 24,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Alice\'s Riddle:',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: const Color(0xFF8B5CF6),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
                       Text(
-                        'Alice\'s Riddle:',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: const Color(0xFF8B5CF6),
-                          fontWeight: FontWeight.w600,
+                        riddle,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          fontStyle: FontStyle.italic,
+                          height: 1.4,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    riddle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -378,17 +403,22 @@ class _FrequencyExplorerState extends State<FrequencyExplorer>
     HapticFeedback.mediumImpact();
 
     setState(() {
-      if (_revealedFrequencies.contains(frequency)) {
-        _selectedFrequency = _selectedFrequency == frequency ? null : frequency;
-      } else {
+      if (!_revealedFrequencies.contains(frequency)) {
         _revealedFrequencies.add(frequency);
-        _selectedFrequency = frequency;
         _revealController.reset();
         _revealController.forward();
       }
+      _selectedFrequency = frequency;
     });
 
     widget.onFrequencyTap(frequency);
+    
+    // Show the frequency insight in a dialog
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.7),
+      builder: (context) => _buildFrequencyInsightDialog(frequency),
+    );
   }
 
   Color _getFrequencyColor(String frequency) {
