@@ -252,33 +252,199 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
   }
 
   void _showSpillDetail(OilSpillData spill) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              spill.isOilCandidate ? 'Oil Detection' : 'Water Sample',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            Text('VV: ${spill.VV.toStringAsFixed(2)} dB'),
-            Text('VH: ${spill.VH.toStringAsFixed(2)} dB'),
-            Text('Date: ${spill.date.toString().substring(0, 10)}'),
-            Text('Location: ${spill.latitude.toStringAsFixed(4)}, ${spill.longitude.toStringAsFixed(4)}'),
-            if (spill.isShipRelated) ...[
-              const SizedBox(height: 8),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: 320,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.red, width: 2),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
               Container(
-                padding: const EdgeInsets.all(8),
-                color: Colors.orange.withValues(alpha: 0.2),
-                child: const Text('⚠️ Ship-related detection'),
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(14),
+                    topRight: Radius.circular(14),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.water_drop, color: Colors.white, size: 24),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            spill.isOilCandidate ? 'Oil Spill' : 'Water',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            spill.isOilCandidate ? 'Detection' : 'Sample',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              // Content
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Basic Information
+                    Row(
+                      children: [
+                        const Icon(Icons.info_outline, color: Colors.white70, size: 16),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Basic Information',
+                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInfoRow('📅 Date:', spill.date.toString().substring(0, 10)),
+                    _buildInfoRow('📍 Location:', '${spill.latitude.toStringAsFixed(2)}°N, ${spill.longitude.toStringAsFixed(2)}°W'),
+
+                    const SizedBox(height: 16),
+
+                    // SAR Data
+                    Row(
+                      children: [
+                        const Icon(Icons.radar, color: Colors.white70, size: 16),
+                        const SizedBox(width: 8),
+                        const Text(
+                          '📡 SAR Data (Sentinel-1)',
+                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInfoRow('• VV:', '${spill.VV.toStringAsFixed(2)} dB'),
+                    _buildInfoRow('• VH:', '${spill.VH.toStringAsFixed(2)} dB'),
+                    _buildInfoRow('• VH/VV Ratio:', spill.VH_VV_ratio.toStringAsFixed(3)),
+                    _buildInfoRow('• Orbit:', spill.orbit_type),
+                    _buildInfoRow('• Angle:', '${spill.angle.toStringAsFixed(1)}°'),
+
+                    const SizedBox(height: 16),
+
+                    // Weather Conditions
+                    Row(
+                      children: [
+                        const Icon(Icons.wb_sunny_outlined, color: Colors.white70, size: 16),
+                        const SizedBox(width: 8),
+                        const Text(
+                          '☀️ Weather Conditions',
+                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInfoRow('• Temperature:', '${(spill.temperature_2m - 273.15).toStringAsFixed(1)}°C (${spill.temperature_2m.toStringAsFixed(1)}K)'),
+                    _buildInfoRow('• Dewpoint:', '${(spill.dewpoint_temperature_2m - 273.15).toStringAsFixed(1)}°C'),
+                    _buildInfoRow('• Wind Speed:', '${spill.wind_speed_10m.toStringAsFixed(1)} m/s'),
+                    _buildInfoRow('• Wind Direction:', '${spill.wind_direction_degrees.toStringAsFixed(0)}°'),
+                    _buildInfoRow('• Precipitation:', '${(spill.total_precipitation * 1000).toStringAsFixed(2)} mm'),
+                    _buildInfoRow('• Pressure:', '${spill.surface_pressure.toStringAsFixed(1)} hPa'),
+
+                    const SizedBox(height: 16),
+
+                    // Classification
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: spill.isOilCandidate ? Colors.red.withValues(alpha: 0.3) : Colors.blue.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: spill.isOilCandidate ? Colors.red : Colors.blue,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            spill.isOilCandidate ? Icons.warning : Icons.check_circle,
+                            color: spill.isOilCandidate ? Colors.red : Colors.blue,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '⚠️ Classification',
+                                  style: TextStyle(
+                                    color: spill.isOilCandidate ? Colors.red.shade200 : Colors.blue.shade200,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  spill.isOilCandidate ? 'OIL CANDIDATE' : 'WATER',
+                                  style: TextStyle(
+                                    color: spill.isOilCandidate ? Colors.red : Colors.blue,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -314,32 +480,6 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
               });
             },
             tooltip: 'Layer Controls',
-          ),
-          IconButton(
-            icon: Icon(
-              _showGEEOilDetection ? Icons.visibility : Icons.visibility_off,
-              color: _showGEEOilDetection ? Colors.red : null,
-            ),
-            onPressed: () {
-              setState(() {
-                _showGEEOilDetection = !_showGEEOilDetection;
-                _updateTileOverlays();
-              });
-            },
-            tooltip: _showGEEOilDetection ? 'Hide Oil Overlay' : 'Show Oil Overlay',
-          ),
-          IconButton(
-            icon: Icon(
-              _isAnimating ? Icons.pause_circle : Icons.play_circle,
-              color: _isAnimating ? Colors.green : null,
-            ),
-            onPressed: _toggleAnimation,
-            tooltip: _isAnimating ? 'Stop Animation' : 'Play Animation',
-          ),
-          IconButton(
-            icon: const Icon(Icons.shuffle),
-            onPressed: _showRandomSample,
-            tooltip: 'Show Random Sample',
           ),
           IconButton(
             icon: const Icon(Icons.storage),
@@ -543,6 +683,29 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          FloatingActionButton(
+            heroTag: "visibility",
+            mini: true,
+            backgroundColor: _showGEEOilDetection ? Colors.red : null,
+            onPressed: () {
+              setState(() {
+                _showGEEOilDetection = !_showGEEOilDetection;
+                _updateTileOverlays();
+              });
+            },
+            tooltip: _showGEEOilDetection ? 'Hide Oil Overlay' : 'Show Oil Overlay',
+            child: Icon(_showGEEOilDetection ? Icons.visibility : Icons.visibility_off),
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton(
+            heroTag: "animation",
+            mini: true,
+            backgroundColor: _isAnimating ? Colors.green : null,
+            onPressed: _toggleAnimation,
+            tooltip: _isAnimating ? 'Stop Animation' : 'Play Animation',
+            child: Icon(_isAnimating ? Icons.pause_circle : Icons.play_circle),
+          ),
+          const SizedBox(height: 8),
           FloatingActionButton(
             heroTag: "stats",
             mini: true,
