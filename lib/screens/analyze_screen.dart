@@ -457,64 +457,85 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
                 ),
               ),
             ),
-          // Layer Control Panel (last in Stack to be on top)
+          // Layer Control Panel Modal Overlay (on top of everything)
           if (_showLayerPanel)
-            Positioned(
-              right: 16,
-              top: 16,
-              bottom: 80,
-              width: 300,
-              child: LayerControlPanel(
-                onClose: () => setState(() => _showLayerPanel = false),
-                showShipLayer: _showShipLayer,
-                highlightShipCorrelation: _highlightShipCorrelation,
-                onShipLayerChanged: (value) {
-                  setState(() {
-                    _showShipLayer = value;
-                    _updateMarkers();
-                  });
-                },
-                onShipCorrelationChanged: (value) {
-                  setState(() {
-                    _highlightShipCorrelation = value;
-                    _updateMarkers();
-                  });
-                },
-                showGEESAR: _showGEESAR,
-                showGEEOilDetection: _showGEEOilDetection,
-                onGEESARChanged: (value) {
-                  setState(() {
-                    _showGEESAR = value;
-                    _updateTileOverlays();
-                  });
-                },
-                onGEEOilDetectionChanged: (value) {
-                  setState(() {
-                    _showGEEOilDetection = value;
-                    _updateTileOverlays();
-                  });
-                },
-                activeHeatmap: _activeHeatmap,
-                onHeatmapChanged: (value) {
-                  setState(() {
-                    _activeHeatmap = value;
-                  });
-                },
-                heatmapOpacity: _heatmapOpacity,
-                onHeatmapOpacityChanged: (value) {
-                  setState(() {
-                    _heatmapOpacity = value;
-                  });
-                },
-                dataPointPercentage: _dataPointPercentage,
-                onDataPointPercentageChanged: (value) {
-                  setState(() {
-                    _dataPointPercentage = value;
-                    _applyDataPointFilter();
-                  });
-                },
-                totalDataPoints: _allData.length,
-                displayedDataPoints: _oilSpillData.length,
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => setState(() => _showLayerPanel = false),
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () {}, // Prevent closing when tapping the panel itself
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: LayerControlPanel(
+                          onClose: () => setState(() => _showLayerPanel = false),
+                          showShipLayer: _showShipLayer,
+                          highlightShipCorrelation: _highlightShipCorrelation,
+                          onShipLayerChanged: (value) {
+                            setState(() {
+                              _showShipLayer = value;
+                              _updateMarkers();
+                            });
+                          },
+                          onShipCorrelationChanged: (value) {
+                            setState(() {
+                              _highlightShipCorrelation = value;
+                              _updateMarkers();
+                            });
+                          },
+                          showGEESAR: _showGEESAR,
+                          showGEEOilDetection: _showGEEOilDetection,
+                          onGEESARChanged: (value) {
+                            setState(() {
+                              _showGEESAR = value;
+                              _updateTileOverlays();
+                            });
+                          },
+                          onGEEOilDetectionChanged: (value) {
+                            setState(() {
+                              _showGEEOilDetection = value;
+                              _updateTileOverlays();
+                            });
+                          },
+                          activeHeatmap: _activeHeatmap,
+                          onHeatmapChanged: (value) {
+                            setState(() {
+                              _activeHeatmap = value;
+                            });
+                          },
+                          heatmapOpacity: _heatmapOpacity,
+                          onHeatmapOpacityChanged: (value) {
+                            setState(() {
+                              _heatmapOpacity = value;
+                            });
+                          },
+                          dataPointPercentage: _dataPointPercentage,
+                          onDataPointPercentageChanged: (value) {
+                            setState(() {
+                              _dataPointPercentage = value;
+                              _applyDataPointFilter();
+                            });
+                          },
+                          totalDataPoints: _allData.length,
+                          displayedDataPoints: _oilSpillData.length,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
         ],
