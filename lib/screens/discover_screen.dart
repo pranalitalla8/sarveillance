@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import '../widgets/educational_card.dart';
 
 class DiscoverScreen extends StatefulWidget {
@@ -233,6 +234,26 @@ Urban Planning:
     );
   }
 
+  void _shareContent(Map<String, dynamic> content) {
+    final String shareText = '''
+${content['title']} - ${content['subtitle']}
+
+${content['description']}
+
+Duration: ${content['duration']}
+Difficulty: ${content['difficulty']}
+
+${content['content']}
+
+Shared from NASA SAR App - Discover SAR Technology
+''';
+
+    Share.share(
+      shareText,
+      subject: content['title'],
+    );
+  }
+
   void _showContentDetail(int index) {
     final content = _educationalContent[index];
     showModalBottomSheet(
@@ -347,18 +368,27 @@ Urban Planning:
                               },
                               icon: Icon(_savedContentIds.contains(index) ? Icons.bookmark : Icons.bookmark_add),
                               label: Text(_savedContentIds.contains(index) ? 'Saved' : 'Save for Later'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () => _shareContent(content),
                               icon: const Icon(Icons.share),
                               label: const Text('Share'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                foregroundColor: Colors.white,
+                              ),
                             ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 24), // Extra bottom padding
                     ],
                   ),
                 ),
