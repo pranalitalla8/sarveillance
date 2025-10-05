@@ -121,11 +121,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddAreaDialog(),
-        icon: const Icon(Icons.add_location),
-        label: const Text('Add Region'),
-      ),
     );
   }
 
@@ -133,34 +128,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
     showDialog(
       context: context,
       builder: (context) => _StudyAreaDetailDialog(studyArea: area),
-    );
-  }
-
-  void _showAddAreaDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Monitoring Area'),
-        content: const Text('Add a new region in Chesapeake Bay for oil spill monitoring and analysis. This will create a custom study area with SAR satellite coverage.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Feature coming soon!'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
     );
   }
 }
