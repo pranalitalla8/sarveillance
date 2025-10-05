@@ -7,6 +7,7 @@ import '../widgets/sar_viewer.dart';
 import '../widgets/region_info_panel.dart';
 import '../models/map_region.dart';
 import '../services/region_data_service.dart';
+import 'time_series_screen.dart';
 
 class AnalyzeScreen extends StatefulWidget {
   const AnalyzeScreen({super.key});
@@ -71,6 +72,11 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
               });
             },
             tooltip: 'Measurement Tools',
+          ),
+          IconButton(
+            icon: const Icon(Icons.show_chart),
+            onPressed: () => _navigateToTimeSeries(),
+            tooltip: 'Time Series Analysis',
           ),
           IconButton(
             icon: const Icon(Icons.settings),
@@ -234,6 +240,14 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
           child: const Icon(Icons.speed),
         ),
       ],
+    );
+  }
+
+  void _navigateToTimeSeries() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const TimeSeriesScreen(),
+      ),
     );
   }
 
