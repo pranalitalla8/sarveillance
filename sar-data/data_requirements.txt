@@ -2,7 +2,6 @@ SAR Data Requirements for NASA Space Apps Challenge
 
 PRIORITY DATA TYPES:
 - Oil spill detection in coastal waters
-- Illegal ship tracking and identification
 - Sea ice monitoring and change detection
 
 TECHNICAL SPECIFICATIONS:

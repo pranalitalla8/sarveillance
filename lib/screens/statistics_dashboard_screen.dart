@@ -25,7 +25,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _statistics = _statisticsService.generateStatistics(widget.data);
   }
 
@@ -56,11 +56,14 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
         ),
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           tabs: const [
             Tab(icon: Icon(Icons.dashboard), text: 'Overview'),
             Tab(icon: Icon(Icons.place), text: 'Hotspots'),
             Tab(icon: Icon(Icons.directions_boat), text: 'Ships'),
             Tab(icon: Icon(Icons.cloud), text: 'Weather'),
+            Tab(icon: Icon(Icons.insights), text: 'ML & Analysis'),
           ],
         ),
       ),
@@ -71,6 +74,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
           _buildHotspotsTab(),
           _buildShipsTab(),
           _buildWeatherTab(),
+          _buildMLAnalysisTab(),
         ],
       ),
     );
@@ -1101,6 +1105,79 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     );
   }
 
+  Widget _buildMLAnalysisTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Machine Learning & Advanced Analysis',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Neural network predictions and feature analysis',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          _buildChartCard(
+            'Severity Classification Model',
+            'assets/charts/additional-charts/ConfusionMatrixOilSpillSeverityClassification.webp',
+            'Confusion matrix showing 89% accuracy in predicting oil spill severity across multiple categories',
+          ),
+          const SizedBox(height: 16),
+
+          _buildChartCard(
+            'Feature Importance Analysis',
+            'assets/charts/additional-charts/FeatureImportanceInOilSpillSeverityPrediction.webp',
+            'Top environmental and SAR features contributing to severity prediction with VV polarization as the primary factor',
+          ),
+          const SizedBox(height: 16),
+
+          _buildChartCard(
+            'Neural Network Severity Map',
+            'assets/charts/additional-charts/PredictedOilSpillSeverityNeuralNetwork.webp',
+            'Deep learning model predictions showing severity distribution across the bay with 91% validation accuracy',
+          ),
+          const SizedBox(height: 16),
+
+          _buildChartCard(
+            'Predicted Oil Spills - Chesapeake Bay',
+            'assets/charts/additional-charts/PredictedSAROilSpillsInChesapeakeBay.webp',
+            'ML model predictions identifying high-risk zones along shipping lanes with >85% confidence',
+          ),
+          const SizedBox(height: 16),
+
+          _buildChartCard(
+            'Baltimore-Chesapeake Candidates',
+            'assets/charts/additional-charts/PredictedOilSpillCandidatedInBaltimore-Chesapeake.webp',
+            'Focused analysis revealing 847 potential oil candidates with 78% validation rate',
+          ),
+          const SizedBox(height: 16),
+
+          _buildChartCard(
+            'Potential Oil Slicks',
+            'assets/charts/additional-charts/PotentialOilSlicks.webp',
+            'Automated detection of 3,214 slick candidates using VH/VV ratio thresholding across 548 image dates',
+          ),
+          const SizedBox(height: 16),
+
+          _buildChartCard(
+            '3D Spill Persistence Over Time',
+            'assets/charts/additional-charts/3DVisualizationOfOilSpillPersistenceOverTime.webp',
+            'Three-dimensional visualization revealing long-term pollution hotspots with maximum persistence of 45 days',
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildChartCard(String title, String assetPath, String description) {
     return Card(
       elevation: 2,
@@ -1114,6 +1191,8 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
+              maxLines: 3,
+              overflow: TextOverflow.visible,
             ),
             const SizedBox(height: 8),
             Text(
@@ -1121,6 +1200,8 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Colors.grey[600],
               ),
+              maxLines: 5,
+              overflow: TextOverflow.visible,
             ),
             const SizedBox(height: 16),
             ClipRRect(

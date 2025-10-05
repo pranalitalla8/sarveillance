@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import '../widgets/layer_control_panel.dart';
+import '../widgets/spill_detail_popup.dart';
 import '../models/oil_spill_data.dart';
 import '../services/sar_data_service.dart';
 import '../services/gee_tile_service.dart';
@@ -233,11 +234,8 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
         alpha = 0.8;
         title = 'Oil Detection';
-      } else if (point.isShipRelated && !_showShipLayer) {
-        // Skip non-oil ship markers if ship layer is hidden
-        continue;
       } else {
-        // Water or other
+        // Water points (always show)
         markerColor = Colors.blue;
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
         alpha = 0.5;
@@ -275,242 +273,10 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
   void _showSpillDetail(OilSpillData spill) {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: 320,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.red, width: 2),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(14),
-                    topRight: Radius.circular(14),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.water_drop, color: Colors.white, size: 24),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            spill.isOilCandidate ? 'Oil Spill' : 'Water',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            spill.isOilCandidate ? 'Detection' : 'Sample',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-              ),
-              // Content
-              Container(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Basic Information
-                    Row(
-                      children: [
-                        const Icon(Icons.info_outline, color: Colors.white70, size: 16),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Basic Information',
-                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInfoRow('📅 Date:', spill.date.toString().substring(0, 10)),
-                    _buildInfoRow('📍 Location:', '${spill.latitude.toStringAsFixed(2)}°N, ${spill.longitude.toStringAsFixed(2)}°W'),
-
-                    const SizedBox(height: 16),
-
-                    // SAR Data
-                    Row(
-                      children: [
-                        const Icon(Icons.radar, color: Colors.white70, size: 16),
-                        const SizedBox(width: 8),
-                        const Text(
-                          '📡 SAR Data (Sentinel-1)',
-                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInfoRow('• VV:', '${spill.VV.toStringAsFixed(2)} dB'),
-                    _buildInfoRow('• VH:', '${spill.VH.toStringAsFixed(2)} dB'),
-                    _buildInfoRow('• VH/VV Ratio:', spill.VH_VV_ratio.toStringAsFixed(3)),
-                    _buildInfoRow('• Orbit:', spill.orbit_type),
-                    _buildInfoRow('• Angle:', '${spill.angle.toStringAsFixed(1)}°'),
-
-                    const SizedBox(height: 16),
-
-                    // Weather Conditions
-                    Row(
-                      children: [
-                        const Icon(Icons.wb_sunny_outlined, color: Colors.white70, size: 16),
-                        const SizedBox(width: 8),
-                        const Text(
-                          '☀️ Weather Conditions',
-                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInfoRow('• Temperature:', '${(spill.temperature_2m - 273.15).toStringAsFixed(1)}°C (${spill.temperature_2m.toStringAsFixed(1)}K)'),
-                    _buildInfoRow('• Dewpoint:', '${(spill.dewpoint_temperature_2m - 273.15).toStringAsFixed(1)}°C'),
-                    _buildInfoRow('• Wind Speed:', '${spill.wind_speed_10m.toStringAsFixed(1)} m/s'),
-                    _buildInfoRow('• Wind Direction:', '${spill.wind_direction_degrees.toStringAsFixed(0)}°'),
-                    _buildInfoRow('• Precipitation:', '${(spill.total_precipitation * 1000).toStringAsFixed(2)} mm'),
-                    _buildInfoRow('• Pressure:', '${spill.surface_pressure.toStringAsFixed(1)} hPa'),
-
-                    const SizedBox(height: 16),
-
-                    // Ship Tracking (AIS)
-                    if (spill.hasShipData) ...[
-                      Row(
-                        children: [
-                          const Icon(Icons.directions_boat, color: Colors.white70, size: 16),
-                          const SizedBox(width: 8),
-                          const Text(
-                            '🚢 Ship Tracking (AIS)',
-                            style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      _buildInfoRow('• Ships Detected:', '${spill.num_ships_near_point ?? 0}'),
-                      if (spill.closest_ship_distance_km != null)
-                        _buildInfoRow('• Closest Ship:', '${spill.closest_ship_distance_km!.toStringAsFixed(2)} km'),
-                      if (spill.avg_ship_speed != null)
-                        _buildInfoRow('• Avg Ship Speed:', '${spill.avg_ship_speed!.toStringAsFixed(1)} knots'),
-                      if (spill.isShipRelated)
-                        Container(
-                          margin: const EdgeInsets.only(top: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.orange, width: 1),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.warning, color: Colors.orange, size: 14),
-                              SizedBox(width: 4),
-                              Text(
-                                'Ship-Related Detection (<5km)',
-                                style: TextStyle(color: Colors.orange, fontSize: 11, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      const SizedBox(height: 16),
-                    ],
-
-                    // Classification
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: spill.isOilCandidate ? Colors.red.withValues(alpha: 0.3) : Colors.blue.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: spill.isOilCandidate ? Colors.red : Colors.blue,
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            spill.isOilCandidate ? Icons.warning : Icons.check_circle,
-                            color: spill.isOilCandidate ? Colors.red : Colors.blue,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '⚠️ Classification',
-                                  style: TextStyle(
-                                    color: spill.isOilCandidate ? Colors.red.shade200 : Colors.blue.shade200,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                Text(
-                                  spill.isOilCandidate ? 'OIL CANDIDATE' : 'WATER',
-                                  style: TextStyle(
-                                    color: spill.isOilCandidate ? Colors.red : Colors.blue,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      builder: (context) => SpillDetailPopup(spillData: spill),
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -588,65 +354,6 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
                     ],
                   ),
                 ),
-              ),
-            ),
-          if (_showLayerPanel)
-            Positioned(
-              right: 16,
-              top: 16,
-              bottom: 80,
-              width: 300,
-              child: LayerControlPanel(
-                onClose: () => setState(() => _showLayerPanel = false),
-                showShipLayer: _showShipLayer,
-                highlightShipCorrelation: _highlightShipCorrelation,
-                onShipLayerChanged: (value) {
-                  setState(() {
-                    _showShipLayer = value;
-                    _updateMarkers();
-                  });
-                },
-                onShipCorrelationChanged: (value) {
-                  setState(() {
-                    _highlightShipCorrelation = value;
-                    _updateMarkers();
-                  });
-                },
-                showGEESAR: _showGEESAR,
-                showGEEOilDetection: _showGEEOilDetection,
-                onGEESARChanged: (value) {
-                  setState(() {
-                    _showGEESAR = value;
-                    _updateTileOverlays();
-                  });
-                },
-                onGEEOilDetectionChanged: (value) {
-                  setState(() {
-                    _showGEEOilDetection = value;
-                    _updateTileOverlays();
-                  });
-                },
-                activeHeatmap: _activeHeatmap,
-                onHeatmapChanged: (value) {
-                  setState(() {
-                    _activeHeatmap = value;
-                  });
-                },
-                heatmapOpacity: _heatmapOpacity,
-                onHeatmapOpacityChanged: (value) {
-                  setState(() {
-                    _heatmapOpacity = value;
-                  });
-                },
-                dataPointPercentage: _dataPointPercentage,
-                onDataPointPercentageChanged: (value) {
-                  setState(() {
-                    _dataPointPercentage = value;
-                    _applyDataPointFilter();
-                  });
-                },
-                totalDataPoints: _allData.length,
-                displayedDataPoints: _oilSpillData.length,
               ),
             ),
           // Chesapeake Bay SAR Analysis Card
@@ -748,6 +455,66 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
                     ],
                   ),
                 ),
+              ),
+            ),
+          // Layer Control Panel (last in Stack to be on top)
+          if (_showLayerPanel)
+            Positioned(
+              right: 16,
+              top: 16,
+              bottom: 80,
+              width: 300,
+              child: LayerControlPanel(
+                onClose: () => setState(() => _showLayerPanel = false),
+                showShipLayer: _showShipLayer,
+                highlightShipCorrelation: _highlightShipCorrelation,
+                onShipLayerChanged: (value) {
+                  setState(() {
+                    _showShipLayer = value;
+                    _updateMarkers();
+                  });
+                },
+                onShipCorrelationChanged: (value) {
+                  setState(() {
+                    _highlightShipCorrelation = value;
+                    _updateMarkers();
+                  });
+                },
+                showGEESAR: _showGEESAR,
+                showGEEOilDetection: _showGEEOilDetection,
+                onGEESARChanged: (value) {
+                  setState(() {
+                    _showGEESAR = value;
+                    _updateTileOverlays();
+                  });
+                },
+                onGEEOilDetectionChanged: (value) {
+                  setState(() {
+                    _showGEEOilDetection = value;
+                    _updateTileOverlays();
+                  });
+                },
+                activeHeatmap: _activeHeatmap,
+                onHeatmapChanged: (value) {
+                  setState(() {
+                    _activeHeatmap = value;
+                  });
+                },
+                heatmapOpacity: _heatmapOpacity,
+                onHeatmapOpacityChanged: (value) {
+                  setState(() {
+                    _heatmapOpacity = value;
+                  });
+                },
+                dataPointPercentage: _dataPointPercentage,
+                onDataPointPercentageChanged: (value) {
+                  setState(() {
+                    _dataPointPercentage = value;
+                    _applyDataPointFilter();
+                  });
+                },
+                totalDataPoints: _allData.length,
+                displayedDataPoints: _oilSpillData.length,
               ),
             ),
         ],

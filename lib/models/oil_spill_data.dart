@@ -39,6 +39,14 @@ class OilSpillData {
   final double? closest_ship_distance_km;   // Distance to closest ship in km
   final double? avg_ship_speed;             // Average speed of nearby ships
 
+  // NASA POWER weather data (enhanced)
+  final double? nasa_power_air_temp_2m;           // °C
+  final double? nasa_power_max_air_temp_2m;       // °C
+  final double? nasa_power_min_air_temp_2m;       // °C
+  final double? nasa_power_wind_speed_2m;         // m/s
+  final double? nasa_power_precipitation_mm;      // mm
+  final double? nasa_power_solar_radiation;       // MJ/m²/day
+
   const OilSpillData({
     required this.systemIndex,
     required this.longitude,
@@ -64,12 +72,27 @@ class OilSpillData {
     this.num_ships_near_point,
     this.closest_ship_distance_km,
     this.avg_ship_speed,
+    this.nasa_power_air_temp_2m,
+    this.nasa_power_max_air_temp_2m,
+    this.nasa_power_min_air_temp_2m,
+    this.nasa_power_wind_speed_2m,
+    this.nasa_power_precipitation_mm,
+    this.nasa_power_solar_radiation,
   });
 
   factory OilSpillData.fromCsv(Map<String, dynamic> row) {
     // Helper to get value case-insensitively
     dynamic getValue(String key) {
       return row[key] ?? row[key.toLowerCase()] ?? row[key.toUpperCase()];
+    }
+
+    // Debug: Print NASA POWER values for first row
+    if (row['system:index']?.toString().contains('0_1_33') == true) {
+      print('DEBUG NASA POWER DATA for first row:');
+      print('  nasa_power_air_temp_2m: ${getValue('nasa_power_air_temp_2m')}');
+      print('  nasa_power_max_air_temp_2m: ${getValue('nasa_power_max_air_temp_2m')}');
+      print('  nasa_power_min_air_temp_2m: ${getValue('nasa_power_min_air_temp_2m')}');
+      print('  All keys: ${row.keys.where((k) => k.contains('nasa')).toList()}');
     }
 
     return OilSpillData(
@@ -97,6 +120,12 @@ class OilSpillData {
       num_ships_near_point: getValue('num_ships_near_point') != null ? _parseInt(getValue('num_ships_near_point')) : null,
       closest_ship_distance_km: getValue('closest_ship_distance_km') != null ? _parseDouble(getValue('closest_ship_distance_km')) : null,
       avg_ship_speed: getValue('avg_ship_speed') != null ? _parseDouble(getValue('avg_ship_speed')) : null,
+      nasa_power_air_temp_2m: getValue('nasa_power_air_temp_2m') != null ? _parseDouble(getValue('nasa_power_air_temp_2m')) : null,
+      nasa_power_max_air_temp_2m: getValue('nasa_power_max_air_temp_2m') != null ? _parseDouble(getValue('nasa_power_max_air_temp_2m')) : null,
+      nasa_power_min_air_temp_2m: getValue('nasa_power_min_air_temp_2m') != null ? _parseDouble(getValue('nasa_power_min_air_temp_2m')) : null,
+      nasa_power_wind_speed_2m: getValue('nasa_power_wind_speed_2m_m/s') != null ? _parseDouble(getValue('nasa_power_wind_speed_2m_m/s')) : null,
+      nasa_power_precipitation_mm: getValue('nasa_power_precipitation_mm') != null ? _parseDouble(getValue('nasa_power_precipitation_mm')) : null,
+      nasa_power_solar_radiation: getValue('nasa_power_solar_radiation_MJm2day') != null ? _parseDouble(getValue('nasa_power_solar_radiation_MJm2day')) : null,
     );
   }
 
@@ -151,4 +180,6 @@ class OilSpillData {
   bool get hasShipData => num_ships_near_point != null && num_ships_near_point! > 0;
 
   bool get isShipRelated => hasShipData && (closest_ship_distance_km ?? double.infinity) < 5.0; // Within 5km
+
+  bool get hasNasaPowerData => nasa_power_air_temp_2m != null;
 }
