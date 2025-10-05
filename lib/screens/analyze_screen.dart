@@ -5,11 +5,9 @@ import '../widgets/layer_control_panel.dart';
 import '../widgets/measurement_tools.dart';
 import '../widgets/spill_detail_popup.dart';
 import '../widgets/environmental_heatmap.dart';
-import '../models/map_region.dart';
 import '../models/oil_spill_data.dart';
 import '../services/sar_data_service.dart';
 import '../services/gee_tile_service.dart';
-import 'time_series_screen.dart';
 import 'data_management_screen.dart';
 import 'statistics_dashboard_screen.dart';
 
@@ -197,11 +195,6 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
               });
             },
             tooltip: 'Measurement Tools',
-          ),
-          IconButton(
-            icon: const Icon(Icons.show_chart),
-            onPressed: () => _navigateToTimeSeries(),
-            tooltip: 'Time Series Analysis',
           ),
           IconButton(
             icon: const Icon(Icons.storage),
@@ -513,13 +506,6 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     );
   }
 
-  void _navigateToTimeSeries() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const TimeSeriesScreen(),
-      ),
-    );
-  }
 
   void _showFilterOptions() {
     showModalBottomSheet(
