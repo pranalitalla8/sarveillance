@@ -4,6 +4,8 @@ import 'package:latlong2/latlong.dart';
 import '../widgets/layer_control_panel.dart';
 import '../widgets/measurement_tools.dart';
 import '../widgets/spill_detail_popup.dart';
+import '../widgets/environmental_heatmap.dart';
+import '../models/map_region.dart';
 import '../models/oil_spill_data.dart';
 import '../services/sar_data_service.dart';
 import 'time_series_screen.dart';
@@ -22,6 +24,11 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   bool _showMeasurementTools = false;
   bool _showShipLayer = true;
   bool _highlightShipCorrelation = true;
+
+  // Environmental heatmap layers
+  String? _activeHeatmap; // 'temperature', 'wind', 'precipitation', etc.
+  double _heatmapOpacity = 0.6;
+
   String _selectedTool = 'none';
   List<OilSpillData> _oilSpillData = [];
   List<OilSpillData> _allData = [];
@@ -197,6 +204,13 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.nasa.sar_app',
               ),
+              // Environmental heatmap layer (rendered before markers)
+              if (_activeHeatmap != null && !_isLoading && _allData.isNotEmpty)
+                EnvironmentalHeatmap(
+                  data: _allData,
+                  heatmapType: _activeHeatmap!,
+                  opacity: _heatmapOpacity,
+                ),
               if (!_isLoading && _oilSpillData.isNotEmpty)
                 CircleLayer(
                   circles: _oilSpillData.map((point) {
@@ -268,6 +282,14 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 },
                 onShipCorrelationChanged: (value) {
                   setState(() => _highlightShipCorrelation = value);
+                },
+                activeHeatmap: _activeHeatmap,
+                heatmapOpacity: _heatmapOpacity,
+                onHeatmapChanged: (value) {
+                  setState(() => _activeHeatmap = value);
+                },
+                onHeatmapOpacityChanged: (value) {
+                  setState(() => _heatmapOpacity = value);
                 },
               ),
             ),

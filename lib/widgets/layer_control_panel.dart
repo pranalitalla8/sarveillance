@@ -6,6 +6,10 @@ class LayerControlPanel extends StatefulWidget {
   final bool highlightShipCorrelation;
   final ValueChanged<bool> onShipLayerChanged;
   final ValueChanged<bool> onShipCorrelationChanged;
+  final String? activeHeatmap;
+  final double heatmapOpacity;
+  final ValueChanged<String?> onHeatmapChanged;
+  final ValueChanged<double> onHeatmapOpacityChanged;
 
   const LayerControlPanel({
     super.key,
@@ -14,6 +18,10 @@ class LayerControlPanel extends StatefulWidget {
     required this.highlightShipCorrelation,
     required this.onShipLayerChanged,
     required this.onShipCorrelationChanged,
+    required this.activeHeatmap,
+    required this.heatmapOpacity,
+    required this.onHeatmapChanged,
+    required this.onHeatmapOpacityChanged,
   });
 
   @override
@@ -84,6 +92,15 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
               children: [
                 _buildShipTrackingSection(),
                 const Divider(height: 32),
+                _buildLayerSection('Environmental Heatmaps', [
+                  'Temperature',
+                  'Wind Speed',
+                  'Precipitation',
+                  'Surface Pressure',
+                  'Dewpoint',
+                  'Solar Radiation',
+                ]),
+                const SizedBox(height: 16),
                 _buildLayerSection('SAR Data', [
                   'SAR Backscatter',
                   'Coherence',
@@ -182,6 +199,11 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
   }
 
   Widget _buildLayerSection(String title, List<String> layers) {
+    // Special handling for Environmental Heatmaps
+    if (title == 'Environmental Heatmaps') {
+      return _buildEnvironmentalHeatmapSection(layers);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -194,6 +216,77 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
         ),
         const SizedBox(height: 8),
         ...layers.map((layer) => _buildLayerControl(layer)),
+      ],
+    );
+  }
+
+  Widget _buildEnvironmentalHeatmapSection(List<String> layers) {
+    final heatmapKeys = {
+      'Temperature': 'temperature',
+      'Wind Speed': 'wind',
+      'Precipitation': 'precipitation',
+      'Surface Pressure': 'pressure',
+      'Dewpoint': 'dewpoint',
+      'Solar Radiation': 'solar',
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.thermostat, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Environmental Heatmaps',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                ...layers.map((layer) {
+                  final heatmapKey = heatmapKeys[layer];
+                  return RadioListTile<String?>(
+                    value: heatmapKey,
+                    groupValue: widget.activeHeatmap,
+                    onChanged: (value) {
+                      widget.onHeatmapChanged(value == widget.activeHeatmap ? null : value);
+                    },
+                    title: Text(layer),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                  );
+                }),
+                if (widget.activeHeatmap != null) ...[
+                  const Divider(),
+                  Row(
+                    children: [
+                      const Text('Opacity:'),
+                      Expanded(
+                        child: Slider(
+                          value: widget.heatmapOpacity,
+                          min: 0.2,
+                          max: 1.0,
+                          divisions: 8,
+                          onChanged: widget.onHeatmapOpacityChanged,
+                        ),
+                      ),
+                      Text('${(widget.heatmapOpacity * 100).toInt()}%'),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
