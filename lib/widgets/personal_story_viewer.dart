@@ -233,9 +233,9 @@ class _PersonalStoryViewerState extends State<PersonalStoryViewer>
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         SizedBox(
-          height: 180, // Increased from 120 to 180 for better visibility
+          height: 120, // Compact height to match Royal Technology Arsenal
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: locations.length,
