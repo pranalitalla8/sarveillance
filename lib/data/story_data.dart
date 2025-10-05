@@ -289,43 +289,7 @@ class StoryData {
       ],
     ),
 
-    // Chapter 5: The Cheshire Cat's Secrets
-    StoryChapter(
-      id: 'detection_secrets',
-      title: 'The Cheshire Cat\'s Grin',
-      subtitle: 'What SAR reveals that the eye cannot see',
-      description: 'Like the Cheshire Cat appearing and disappearing, oil spills and illegal activities hide in plain sight. But SAR can see their grin even when they\'ve vanished. Each polarization reveals different secrets about what\'s really happening in our DMV waters.',
-      interactionType: StoryInteractionType.multiFrequency,
-      aliceTheme: const AliceThemeData(
-        chapterQuote: '"We\'re all mad here. I\'m mad. You\'re mad."',
-        characterReference: 'The Cheshire Cat',
-        wonderlandMetaphor: 'The Cat\'s ability to appear and disappear represents how SAR can detect invisible phenomena',
-        visualMotifs: ['cat_grin', 'disappearing_act', 'tree_shadows'],
-        sarToWonderlandMappings: {
-          'Hidden oil spills': 'The Cat\'s invisible body with visible grin',
-          'Polarization differences': 'The Cat appearing in different trees',
-          'Detection algorithms': 'Learning to see the Cat\'s grin',
-        },
-      ),
-      interactions: [
-        InteractiveElement(
-          id: 'detection_game',
-          type: 'game',
-          title: 'Find the Hidden Secrets',
-          description: 'Can you spot what the Cheshire Cat sees?',
-          config: {
-            'game_type': 'spot_the_difference',
-            'challenges': [
-              'Find the oil spill hidden in calm water',
-              'Identify the ship without lights',
-              'Spot the unusual ice pattern',
-            ],
-          },
-        ),
-      ],
-    ),
-
-    // Chapter 6: Alice's Neighborhood
+    // Chapter 5: Alice's Neighborhood (previously Chapter 6)
     StoryChapter(
       id: 'personal_dmv',
       title: 'Alice\'s Neighborhood',
@@ -369,7 +333,7 @@ class StoryData {
       ],
     ),
 
-    // Chapter 7: The Queen's Decree
+    // Chapter 6: The Queen's Decree (previously Chapter 7)
     StoryChapter(
       id: 'future_solution',
       title: 'The Queen\'s Decree',

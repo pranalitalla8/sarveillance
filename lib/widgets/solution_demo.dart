@@ -56,7 +56,7 @@ class _SolutionDemoState extends State<SolutionDemo>
     return Column(
       children: [
         _buildQueenHeader(),
-        const SizedBox(height: 24),
+        const SizedBox(height: 12), // Reduced from 24 to move Arsenal higher
         Expanded(
           child: _buildSolutionContent(),
         ),
@@ -219,17 +219,17 @@ class _SolutionDemoState extends State<SolutionDemo>
   }
 
   Widget _buildSolutionContent() {
-    final solution = widget.solution!;
+final solution = widget.solution!;
 
     return SingleChildScrollView(
       child: Column(
         children: [
           _buildTechnologySelector(solution.technologies),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16), // Reduced from 24
           _buildSelectedTechnologyDetails(solution.technologies),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           _buildImpactPreview(solution.expectedImpacts),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           _buildDeploymentDemo(solution),
         ],
       ),
@@ -247,9 +247,9 @@ class _SolutionDemoState extends State<SolutionDemo>
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12), // Reduced from 16
         SizedBox(
-          height: 200, // Increased from 140 to 200 for better visibility
+          height: 380, // Larger viewport since cards are now more compact
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: technologies.length,
@@ -277,6 +277,7 @@ class _SolutionDemoState extends State<SolutionDemo>
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: 160,
+            height: 100, // Much more square-like, minimal empty space
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
@@ -317,7 +318,7 @@ class _SolutionDemoState extends State<SolutionDemo>
                   : null,
             ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(8), // Minimal padding
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -326,28 +327,28 @@ class _SolutionDemoState extends State<SolutionDemo>
                       Icon(
                         _getTechnologyIcon(tech.category),
                         color: Colors.white,
-                        size: 24,
+                        size: 18, // Smaller icon
                       ),
                       const Spacer(),
                       if (isExplored)
                         Icon(
                           Icons.check_circle,
                           color: Colors.white,
-                          size: 16,
+                          size: 12, // Smaller check
                         ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6), // Minimal spacing
                   Text(
                     tech.name,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const Spacer(),
+                  const SizedBox(height: 4), // Minimal spacing
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
