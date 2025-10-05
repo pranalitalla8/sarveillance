@@ -8,6 +8,7 @@ import '../widgets/environmental_heatmap.dart';
 import '../models/map_region.dart';
 import '../models/oil_spill_data.dart';
 import '../services/sar_data_service.dart';
+import '../services/gee_tile_service.dart';
 import 'time_series_screen.dart';
 import 'data_management_screen.dart';
 import 'statistics_dashboard_screen.dart';
@@ -29,6 +30,15 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   String? _activeHeatmap; // 'temperature', 'wind', 'precipitation', etc.
   double _heatmapOpacity = 0.6;
 
+  // Google Earth Engine tile layers
+  bool _showGEESAR = false;
+  bool _showGEEOilDetection = false;
+  String? _geeSARTileUrl;
+  String? _geeOilTileUrl;
+  String _geeStartDate = '2024-01-01';
+  String _geeEndDate = '2024-12-31';
+  final GEETileService _geeService = GEETileService();
+
   String _selectedTool = 'none';
   List<OilSpillData> _oilSpillData = [];
   List<OilSpillData> _allData = [];
@@ -42,6 +52,39 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   void initState() {
     super.initState();
     _loadSARData();
+    _loadGEETiles();  // Load Google Earth Engine tiles
+  }
+
+  /// Load Google Earth Engine SAR and oil detection tiles
+  Future<void> _loadGEETiles() async {
+    print('Loading GEE tiles...');
+
+    // Check if backend is healthy
+    final isHealthy = await _geeService.checkBackendHealth();
+    if (!isHealthy) {
+      print('⚠️ GEE backend not available - skipping tile loading');
+      print('   Start backend with: cd nasa-sar-backend && uvicorn main:app --reload');
+      return;
+    }
+
+    // Load SAR imagery tiles
+    final sarTileUrl = await _geeService.getSARTiles(
+      startDate: _geeStartDate,
+      endDate: _geeEndDate,
+    );
+
+    // Load oil detection overlay tiles
+    final oilTileUrl = await _geeService.getOilDetectionTiles(
+      startDate: _geeStartDate,
+      endDate: _geeEndDate,
+    );
+
+    setState(() {
+      _geeSARTileUrl = sarTileUrl;
+      _geeOilTileUrl = oilTileUrl;
+    });
+
+    print('✓ GEE tiles loaded successfully');
   }
 
   Future<void> _loadSARData() async {
@@ -204,6 +247,20 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.nasa.sar_app',
               ),
+              // Google Earth Engine SAR imagery layer
+              if (_showGEESAR && _geeSARTileUrl != null)
+                TileLayer(
+                  urlTemplate: _geeSARTileUrl!,
+                  userAgentPackageName: 'com.nasa.sar_app',
+                  tileProvider: NetworkTileProvider(),
+                ),
+              // Google Earth Engine oil detection overlay
+              if (_showGEEOilDetection && _geeOilTileUrl != null)
+                TileLayer(
+                  urlTemplate: _geeOilTileUrl!,
+                  userAgentPackageName: 'com.nasa.sar_app',
+                  tileProvider: NetworkTileProvider(),
+                ),
               // Environmental heatmap layer (rendered before markers)
               if (_activeHeatmap != null && !_isLoading && _allData.isNotEmpty)
                 EnvironmentalHeatmap(
@@ -290,6 +347,14 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 },
                 onHeatmapOpacityChanged: (value) {
                   setState(() => _heatmapOpacity = value);
+                },
+                showGEESAR: _showGEESAR,
+                showGEEOilDetection: _showGEEOilDetection,
+                onGEESARChanged: (value) {
+                  setState(() => _showGEESAR = value);
+                },
+                onGEEOilDetectionChanged: (value) {
+                  setState(() => _showGEEOilDetection = value);
                 },
               ),
             ),
