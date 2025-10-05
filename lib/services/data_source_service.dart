@@ -26,13 +26,19 @@ class DataSourceService {
   /// Initialize the data service
   Future<void> initialize() async {
     try {
-      // For web environment, we'll use a mock directory path
-      _dataDirectory = Directory('mock_data');
+      // Get the proper application documents directory for mobile
+      _dataDirectory = await getApplicationDocumentsDirectory();
+      print('Data directory initialized: ${_dataDirectory?.path}');
       await _createDataDirectories();
     } catch (e) {
       print('Error initializing data service: $e');
-      // Fallback for web - just set a mock directory
-      _dataDirectory = Directory('mock_data');
+      // Fallback - try to get temp directory
+      try {
+        _dataDirectory = await getTemporaryDirectory();
+        print('Using temp directory: ${_dataDirectory?.path}');
+      } catch (e2) {
+        print('Could not initialize any directory: $e2');
+      }
     }
   }
 
