@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import '../models/study_area.dart';
 import '../widgets/study_area_card.dart';
-import '../widgets/category_filter.dart';
 
 // Test comment added
 class ExploreScreen extends StatefulWidget {
@@ -13,19 +12,7 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
-  String selectedCategory = 'All';
-  List<StudyArea> filteredAreas = MockData.studyAreas;
-
-  void _filterByCategory(String category) {
-    setState(() {
-      selectedCategory = category;
-      if (category == 'All') {
-        filteredAreas = MockData.studyAreas;
-      } else {
-        filteredAreas = MockData.getAreasByCategory(category);
-      }
-    });
-  }
+  List<StudyArea> areas = MockData.studyAreas;
 
   @override
   Widget build(BuildContext context) {
@@ -66,58 +53,26 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
-                const SizedBox(height: 16),
-                CategoryFilter(
-                  selectedCategory: selectedCategory,
-                  onCategorySelected: _filterByCategory,
-                ),
               ],
             ),
           ),
           Expanded(
-            child: filteredAreas.isEmpty
-                ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 64,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No study areas found',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Try selecting a different category',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : GridView.builder(
-                        padding: const EdgeInsets.all(16),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.6,
-                        ),
-                        itemCount: filteredAreas.length,
-                        itemBuilder: (context, index) {
-                          return StudyAreaCard(
-                            studyArea: filteredAreas[index],
-                            onTap: () => _navigateToAnalyze(filteredAreas[index]),
-                          );
-                        },
-                      ),
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.6,
+              ),
+              itemCount: areas.length,
+              itemBuilder: (context, index) {
+                return StudyAreaCard(
+                  studyArea: areas[index],
+                  onTap: () => _navigateToAnalyze(areas[index]),
+                );
+              },
+            ),
           ),
         ],
       ),

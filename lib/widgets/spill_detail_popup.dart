@@ -16,7 +16,7 @@ class SpillDetailPopup extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
+        constraints: const BoxConstraints(maxWidth: 500, maxHeight: 700),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -83,8 +83,9 @@ class SpillDetailPopup extends StatelessWidget {
             ),
 
             // Content
-            Flexible(
+            Expanded(
               child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,19 +139,43 @@ class SpillDetailPopup extends StatelessWidget {
                       ],
                     ),
 
-                    // Ship Activity (if available)
+                    // NASA POWER Enhanced Weather (if available)
+                    if (spillData.hasNasaPowerData) ...[
+                      const SizedBox(height: 20),
+                      _buildSection(
+                        icon: Icons.cloud_outlined,
+                        title: '☀️ NASA POWER Weather Data',
+                        children: [
+                          if (spillData.nasa_power_air_temp_2m != null)
+                            _buildInfoRow('Temperature', '${spillData.nasa_power_air_temp_2m!.toStringAsFixed(1)}°C'),
+                          if (spillData.nasa_power_max_air_temp_2m != null)
+                            _buildInfoRow('Max Temp', '${spillData.nasa_power_max_air_temp_2m!.toStringAsFixed(1)}°C'),
+                          if (spillData.nasa_power_min_air_temp_2m != null)
+                            _buildInfoRow('Min Temp', '${spillData.nasa_power_min_air_temp_2m!.toStringAsFixed(1)}°C'),
+                          if (spillData.nasa_power_wind_speed_2m != null)
+                            _buildInfoRow('Wind Speed (2m)', '${spillData.nasa_power_wind_speed_2m!.toStringAsFixed(1)} m/s'),
+                          if (spillData.nasa_power_precipitation_mm != null)
+                            _buildInfoRow('Precipitation', '${spillData.nasa_power_precipitation_mm!.toStringAsFixed(2)} mm'),
+                          if (spillData.nasa_power_solar_radiation != null)
+                            _buildInfoRow('Solar Radiation', '${spillData.nasa_power_solar_radiation!.toStringAsFixed(2)} MJ/m²/day'),
+                        ],
+                      ),
+                    ],
+
+                    // Ship Activity (AIS tracking - if available)
                     if (spillData.hasShipData) ...[
                       const SizedBox(height: 20),
                       _buildSection(
                         icon: Icons.directions_boat,
-                        title: '🚢 Ship Activity',
+                        title: '🚢 Ship Tracking (AIS)',
                         children: [
-                          _buildInfoRow('Status', spillData.vessel_flag ?? 'N/A'),
-                          if (spillData.num_ships != null)
-                            _buildInfoRow('Vessels Detected',
-                                '${spillData.num_ships} ${spillData.num_ships == 1 ? 'vessel' : 'vessels'}'),
-                          if (spillData.ship_types != null)
-                            _buildInfoRow('Types', spillData.ship_types!),
+                          _buildInfoRow('Ships Detected', '${spillData.num_ships_near_point ?? 0}'),
+                          if (spillData.closest_ship_distance_km != null)
+                            _buildInfoRow('Closest Ship', '${spillData.closest_ship_distance_km!.toStringAsFixed(2)} km'),
+                          if (spillData.avg_ship_speed != null)
+                            _buildInfoRow('Avg Ship Speed', '${spillData.avg_ship_speed!.toStringAsFixed(1)} knots'),
+                          if (spillData.isShipRelated)
+                            _buildInfoRow('Status', '⚠️ Ship-Related (<5km)'),
                         ],
                       ),
                     ],
@@ -287,11 +312,13 @@ class SpillDetailPopup extends StatelessWidget {
           children: [
             Icon(icon, size: 20),
             const SizedBox(width: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],

@@ -83,6 +83,7 @@ flutter:
     - assets/images/
     - assets/data/
     - assets/charts/
+    - assets/charts/additional-charts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
