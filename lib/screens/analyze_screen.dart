@@ -31,8 +31,8 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   double _heatmapOpacity = 0.6;
 
   // Google Earth Engine tile layers
-  bool _showGEESAR = false;
-  bool _showGEEOilDetection = false;
+  bool _showGEESAR = true;  // Show SAR imagery by default
+  bool _showGEEOilDetection = true;  // Show oil detection by default
   String? _geeSARTileUrl;
   String? _geeOilTileUrl;
   String _geeStartDate = '2024-01-01';

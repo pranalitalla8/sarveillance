@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class GEETileService {
-  // TODO: Update this URL when deploying backend to production
-  // For local development with backend running on same machine:
-  static const String baseUrl = 'http://localhost:8000';
+  // Backend URL for local development
+  // iOS simulator can't use 'localhost' - must use Mac's IP address
+  static const String baseUrl = 'http://192.168.4.76:8000';
 
   // For deployed backend, use your Cloud Run URL:
   // static const String baseUrl = 'https://sar-backend-xxx-uc.a.run.app';

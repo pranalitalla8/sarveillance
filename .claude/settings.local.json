@@ -4,7 +4,13 @@
       "Bash(flutter pub:*)",
       "Bash(git pull:*)",
       "Read(//Users/davidg/development/**)",
-      "Bash(flutter run:*)"
+      "Bash(flutter run:*)",
+      "Read(//Users/davidg/.config/earthengine/**)",
+      "Bash(python3:*)",
+      "Bash(earthengine authenticate:*)",
+      "Bash(gcloud projects:*)",
+      "Bash(curl:*)",
+      "Bash(awk:*)"
     ],
     "deny": [],
     "ask": []
