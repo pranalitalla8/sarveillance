@@ -42,9 +42,13 @@ dependencies:
   image: ^4.1.7
   path_provider: ^2.1.1
   google_maps_flutter: ^2.9.0
+<<<<<<< HEAD
   csv: ^6.0.0
+=======
+>>>>>>> a230776df58a10166be7e195cd0cfabf6323d6cf
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
+  csv: ^6.0.0
   
   # State management
   provider: ^6.1.1
