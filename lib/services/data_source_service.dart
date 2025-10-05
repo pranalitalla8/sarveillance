@@ -13,7 +13,7 @@ class DataSourceService {
 
   // Data source URLs and configurations
   static const Map<String, String> _dataSourceUrls = {
-    'chesapeake_bay': 'https://www.chesapeakebay.net/documents/3676/chesapeake_bay_watershed_boundary.zip',
+    'chesapeake_bay': 'https://drive.google.com/uc?export=download&id=13zO3jKyPlFgLTeoWl5-CfSO7SpYhG3oB',
     'fish_habitat': 'https://www.chesapeakebay.net/documents/3677/chesapeake_bay_fish_habitat.zip',
     'sav_zones': 'https://www.chesapeakebay.net/documents/3678/chesapeake_bay_sav.zip',
     'zenodo_oil_spill': 'https://zenodo.org/record/4281557/files/oil_spill_dataset.zip',
@@ -251,12 +251,12 @@ class DataSourceService {
       DataSourceConfig(
         name: 'Chesapeake Bay Watershed',
         type: 'shapefile',
-        source: 'NOAA/EPA',
-        format: 'Shapefile',
-        description: 'Chesapeake Bay watershed boundary',
+        source: 'Google Drive',
+        format: 'Shapefile/ZIP',
+        description: 'Chesapeake Bay watershed boundary (Custom dataset)',
         isAvailable: true,
         localPath: path.join(_dataDirectory?.path ?? '', 'shapefiles', 'chesapeake_bay'),
-        metadata: {'area_km2': 165800},
+        metadata: {'area_km2': 165800, 'file_id': '13zO3jKyPlFgLTeoWl5-CfSO7SpYhG3oB'},
       ),
       DataSourceConfig(
         name: 'Fish Habitat Zones',
