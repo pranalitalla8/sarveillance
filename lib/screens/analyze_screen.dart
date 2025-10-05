@@ -219,16 +219,31 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
 
       Color markerColor;
       BitmapDescriptor icon;
+      double alpha;
+      String title;
 
-      if (_highlightShipCorrelation && point.isOilCandidate && point.isShipRelated) {
+      // Prioritize ship-related oil detections
+      if (point.isShipRelated && point.isOilCandidate) {
+        // Ship-related oil (always visible, bright orange)
         markerColor = Colors.orange;
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
+        alpha = 1.0; // Fully opaque for maximum visibility
+        title = 'Ship-Related Oil';
       } else if (point.isOilCandidate) {
+        // Regular oil detection
         markerColor = Colors.red;
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
+        alpha = 0.8;
+        title = 'Oil Detection';
+      } else if (point.isShipRelated && !_showShipLayer) {
+        // Skip non-oil ship markers if ship layer is hidden
+        continue;
       } else {
+        // Water or other
         markerColor = Colors.blue;
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
+        alpha = 0.5;
+        title = 'Water';
       }
 
       markers.add(
@@ -236,9 +251,9 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
           markerId: markerId,
           position: LatLng(point.latitude, point.longitude),
           icon: icon,
-          alpha: point.isOilCandidate ? 0.8 : 0.5,
+          alpha: alpha,
           infoWindow: InfoWindow(
-            title: point.isOilCandidate ? 'Oil Detection' : 'Water',
+            title: title,
             snippet: 'VV: ${point.VV.toStringAsFixed(1)} dB, ${point.date.toString().substring(0, 10)}',
           ),
           onTap: () => _showSpillDetail(point),

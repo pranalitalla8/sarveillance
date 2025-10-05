@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../widgets/educational_card.dart';
-import '../widgets/learning_path.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -9,8 +8,8 @@ class DiscoverScreen extends StatefulWidget {
   State<DiscoverScreen> createState() => _DiscoverScreenState();
 }
 
-class _DiscoverScreenState extends State<DiscoverScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _DiscoverScreenState extends State<DiscoverScreen> {
+  final Set<int> _savedContentIds = {}; // Track saved items
 
   final List<Map<String, dynamic>> _educationalContent = [
     {
@@ -123,42 +122,6 @@ Urban Planning:
     },
   ];
 
-  final List<Map<String, dynamic>> _learningPaths = [
-    {
-      'title': 'SAR Fundamentals',
-      'description': 'Start your journey with the basics of radar technology',
-      'lessons': ['What is SAR?', 'SAR vs Optical', 'Basic Principles', 'Signal Processing'],
-      'progress': 0.0,
-      'color': const Color(0xFF0B3D91),
-    },
-    {
-      'title': 'Advanced Techniques',
-      'description': 'Master complex SAR analysis methods',
-      'lessons': ['Interferometry', 'Polarimetry', 'Tomography', 'Machine Learning'],
-      'progress': 0.0,
-      'color': const Color(0xFF7C3AED),
-    },
-    {
-      'title': 'Applications & Case Studies',
-      'description': 'Explore real-world applications',
-      'lessons': ['Disaster Response', 'Climate Monitoring', 'Urban Planning', 'Research'],
-      'progress': 0.0,
-      'color': const Color(0xFF059669),
-    },
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -178,21 +141,8 @@ Urban Planning:
             ),
           ),
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Learn', icon: Icon(Icons.school)),
-            Tab(text: 'Paths', icon: Icon(Icons.route)),
-          ],
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildLearnTab(),
-          _buildPathsTab(),
-        ],
-      ),
+      body: _buildLearnTab(),
     );
   }
 
@@ -245,7 +195,8 @@ Urban Planning:
             width: cardWidth,
             child: EducationalCard(
               content: _educationalContent[i],
-              onTap: () => _showContentDetail(_educationalContent[i]),
+              isSaved: _savedContentIds.contains(i),
+              onTap: () => _showContentDetail(i),
             ),
           );
 
@@ -282,52 +233,8 @@ Urban Planning:
     );
   }
 
-  Widget _buildPathsTab() {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Learning Paths',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Structured learning journeys to master SAR',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.all(16),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: LearningPath(
-                    pathData: _learningPaths[index],
-                    onTap: () => _startLearningPath(_learningPaths[index]),
-                  ),
-                );
-              },
-              childCount: _learningPaths.length,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showContentDetail(Map<String, dynamic> content) {
+  void _showContentDetail(int index) {
+    final content = _educationalContent[index];
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -419,9 +326,27 @@ Urban Planning:
                         children: [
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.bookmark_add),
-                              label: const Text('Save for Later'),
+                              onPressed: () {
+                                setState(() {
+                                  if (_savedContentIds.contains(index)) {
+                                    _savedContentIds.remove(index);
+                                  } else {
+                                    _savedContentIds.add(index);
+                                  }
+                                });
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(_savedContentIds.contains(index)
+                                      ? 'Saved for later!'
+                                      : 'Removed from saved'),
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              },
+                              icon: Icon(_savedContentIds.contains(index) ? Icons.bookmark : Icons.bookmark_add),
+                              label: Text(_savedContentIds.contains(index) ? 'Saved' : 'Save for Later'),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -445,31 +370,4 @@ Urban Planning:
     );
   }
 
-  void _startLearningPath(Map<String, dynamic> pathData) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Start ${pathData['title']}?'),
-        content: Text('This learning path includes ${pathData['lessons'].length} lessons. Would you like to begin?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Started ${pathData['title']} learning path'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-            child: const Text('Start Learning'),
-          ),
-        ],
-      ),
-    );
-  }
 }

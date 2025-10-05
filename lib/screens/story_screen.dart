@@ -85,7 +85,7 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
       controller: _pageController,
       onPageChanged: _onPageChanged,
       itemCount: StoryData.chapters.length,
-      physics: const BouncingScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(), // Disable swiping
       itemBuilder: (context, index) {
         final chapter = StoryData.chapters[index];
         return SingleChildScrollView(

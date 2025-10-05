@@ -209,34 +209,27 @@ class _InteractiveTimelineState extends State<InteractiveTimeline>
         final opacity = math.min(1.0, slideValue * 2);
         final slideOffset = (1 - slideValue) * 100;
 
-        return AnimatedBuilder(
-          animation: _chaosController,
-          builder: (context, child) {
-            final chaos = _getChaosAmount(event.type) *
-                         math.sin(_chaosController.value * 2 * math.pi + index);
-
-            return Transform.translate(
-              offset: Offset(slideOffset + chaos, 0),
-              child: Opacity(
-                opacity: opacity,
-                child: GestureDetector(
-                  onTap: () => _handleEventTap(event),
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      children: [
-                        _buildEventMarker(event, isRevealed, isSelected),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildEventCard(event, isRevealed, isSelected),
-                        ),
-                      ],
+        return Transform.translate(
+          offset: Offset(slideOffset, 0),
+          child: Opacity(
+            opacity: opacity,
+            child: GestureDetector(
+              onTap: () => _handleEventTap(event),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildEventMarker(event, isRevealed, isSelected),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: _buildEventCard(event, isRevealed, isSelected),
                     ),
-                  ),
+                  ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         );
       },
     );
@@ -374,32 +367,22 @@ class _InteractiveTimelineState extends State<InteractiveTimeline>
   }
 
   Widget _buildTimelineConnector(int index) {
-    return AnimatedBuilder(
-      animation: _chaosController,
-      builder: (context, child) {
-        final nextEvent = _events[index + 1];
-        final chaos = _getChaosAmount(nextEvent.type) *
-                     math.sin(_chaosController.value * 3 * math.pi + index);
+    final nextEvent = _events[index + 1];
 
-        return Transform.translate(
-          offset: Offset(chaos * 0.5, 0),
-          child: Container(
-            margin: const EdgeInsets.only(left: 40),
-            height: 30,
-            width: 2,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  _getEventColor(_events[index].type),
-                  _getEventColor(nextEvent.type),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+    return Container(
+      margin: const EdgeInsets.only(left: 49),
+      height: 30,
+      width: 2,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            _getEventColor(_events[index].type),
+            _getEventColor(nextEvent.type),
+          ],
+        ),
+      ),
     );
   }
 
@@ -408,8 +391,9 @@ class _InteractiveTimelineState extends State<InteractiveTimeline>
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      constraints: const BoxConstraints(minHeight: 200),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
@@ -526,22 +510,6 @@ class _InteractiveTimelineState extends State<InteractiveTimeline>
     }
   }
 
-  double _getChaosAmount(TimelineEventType type) {
-    switch (type) {
-      case TimelineEventType.baseline:
-        return 0.0;
-      case TimelineEventType.human_impact:
-        return 3.0;
-      case TimelineEventType.environmental:
-        return 2.0;
-      case TimelineEventType.pollution:
-        return 5.0;
-      case TimelineEventType.illegal:
-        return 8.0;
-      case TimelineEventType.current:
-        return 10.0;
-    }
-  }
 }
 
 class TimelineEvent {

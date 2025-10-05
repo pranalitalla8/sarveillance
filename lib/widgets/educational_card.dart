@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class EducationalCard extends StatelessWidget {
   final Map<String, dynamic> content;
   final VoidCallback? onTap;
+  final bool isSaved;
 
   const EducationalCard({
     super.key,
     required this.content,
     this.onTap,
+    this.isSaved = false,
   });
 
   @override
@@ -42,6 +44,30 @@ class EducationalCard extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.3),
                     ),
                   ),
+                  if (isSaved)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.bookmark,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
                   Positioned(
                     top: 8,
                     right: 8,
