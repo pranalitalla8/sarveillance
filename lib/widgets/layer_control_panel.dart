@@ -10,6 +10,11 @@ class LayerControlPanel extends StatefulWidget {
   final double heatmapOpacity;
   final ValueChanged<String?> onHeatmapChanged;
   final ValueChanged<double> onHeatmapOpacityChanged;
+  // Google Earth Engine layers
+  final bool showGEESAR;
+  final bool showGEEOilDetection;
+  final ValueChanged<bool> onGEESARChanged;
+  final ValueChanged<bool> onGEEOilDetectionChanged;
 
   const LayerControlPanel({
     super.key,
@@ -22,6 +27,10 @@ class LayerControlPanel extends StatefulWidget {
     required this.heatmapOpacity,
     required this.onHeatmapChanged,
     required this.onHeatmapOpacityChanged,
+    required this.showGEESAR,
+    required this.showGEEOilDetection,
+    required this.onGEESARChanged,
+    required this.onGEEOilDetectionChanged,
   });
 
   @override
@@ -91,6 +100,8 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
               padding: const EdgeInsets.all(16),
               children: [
                 _buildShipTrackingSection(),
+                const Divider(height: 32),
+                _buildGEESection(),
                 const Divider(height: 32),
                 _buildLayerSection('Environmental Heatmaps', [
                   'Temperature',
@@ -184,6 +195,78 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
                       Expanded(
                         child: Text(
                           'Orange markers indicate potential illegal dumping',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGEESection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.satellite_alt, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Google Earth Engine',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                SwitchListTile(
+                  value: widget.showGEESAR,
+                  onChanged: widget.onGEESARChanged,
+                  title: const Text('SAR Imagery'),
+                  subtitle: const Text('Sentinel-1 backscatter'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+                const Divider(),
+                SwitchListTile(
+                  value: widget.showGEEOilDetection,
+                  onChanged: widget.onGEEOilDetectionChanged,
+                  title: const Text('Oil Detection Layer'),
+                  subtitle: const Text('Computed from VV < -22 dB'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Requires backend server running',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
