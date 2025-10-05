@@ -117,6 +117,45 @@ class GEETileService {
     }
   }
 
+  /// Get teammate's oil detection tiles (uses JRC Water Mask method)
+  ///
+  /// This method uses JRC Global Surface Water to only detect oil in
+  /// historically water-covered areas, reducing false positives
+  Future<String?> getTeammateOilDetectionTiles({
+    required String startDate,
+    required String endDate,
+    String bounds = '-77.3,36.8,-75,39.7', // Teammate's ROI
+  }) async {
+    try {
+      final uri = Uri.parse('$baseUrl/tiles/teammate-oil-detection').replace(queryParameters: {
+        'start_date': startDate,
+        'end_date': endDate,
+        'bounds': bounds,
+      });
+
+      print('Fetching teammate oil detection tiles from: $uri');
+      final response = await http.get(uri).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw Exception('Teammate oil detection request timed out');
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final tileUrl = data['tile_url'] as String?;
+        print('✓ Teammate oil detection tile URL received (JRC Water Mask method)');
+        return tileUrl;
+      } else {
+        print('✗ Teammate oil detection error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('✗ Error fetching teammate oil detection: $e');
+      return null;
+    }
+  }
+
   /// Check if the GEE backend is running and healthy
   Future<bool> checkBackendHealth() async {
     try {

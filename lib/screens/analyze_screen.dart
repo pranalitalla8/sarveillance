@@ -73,8 +73,8 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
       endDate: _geeEndDate,
     );
 
-    // Load oil detection overlay tiles
-    final oilTileUrl = await _geeService.getOilDetectionTiles(
+    // Load teammate's oil detection (JRC Water Mask method - more accurate)
+    final oilTileUrl = await _geeService.getTeammateOilDetectionTiles(
       startDate: _geeStartDate,
       endDate: _geeEndDate,
     );
@@ -84,7 +84,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
       _geeOilTileUrl = oilTileUrl;
     });
 
-    print('✓ GEE tiles loaded successfully');
+    print('✓ GEE tiles loaded successfully (using JRC Water Mask method)');
   }
 
   Future<void> _loadSARData() async {

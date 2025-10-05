@@ -245,7 +245,7 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
                   value: widget.showGEEOilDetection,
                   onChanged: widget.onGEEOilDetectionChanged,
                   title: const Text('Oil Detection Layer'),
-                  subtitle: const Text('Computed from VV < -22 dB'),
+                  subtitle: const Text('JRC Water-Masked (VV < -22 dB)'),
                   contentPadding: EdgeInsets.zero,
                   dense: true,
                 ),

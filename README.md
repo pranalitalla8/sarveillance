@@ -4,21 +4,21 @@ A Flutter application for visualizing and analyzing Synthetic Aperture Radar (SA
 
 ## Features
 
-### 🚀 Core Functionality
+### Functionality
 - **Explore Tab**: Browse study areas with categorized SAR datasets (Disasters, Climate, Urban, Natural Features)
 - **Analyze Tab**: Interactive SAR data viewer with layer controls, measurement tools, and analysis capabilities
 - **Compare Tab**: Side-by-side comparison of temporal datasets with multiple viewing modes (overlay, swipe, difference)
 - **Discover Tab**: Educational content about SAR technology and Earth observation
 - **Profile Tab**: User settings, saved analyses, and account management
 
-### 🎨 Design Features
+### Design Features
 - Modern NASA-themed dark design with space gradients
 - Material 3 design principles
 - NASA blue accent color (#0B3D91)
 - Responsive layout with proper spacing and elevation
 - Subtle animations and transitions
 
-### 📱 Technical Features
+### Technical Features
 - Flutter Material 3 theming
 - Custom reusable widgets
 - Mock data for demonstration
