@@ -339,13 +339,13 @@ class ComparisonViewer extends StatelessWidget {
   String _getDatasetTitle(String dataset) {
     switch (dataset) {
       case 'before':
-        return 'Pre-Hurricane';
+        return 'Winter Baseline';
       case 'during':
-        return 'During Hurricane';
+        return 'Spring Period';
       case 'after':
-        return 'Post-Hurricane';
+        return 'Summer Low';
       case 'recovery':
-        return 'Recovery Phase';
+        return 'Current Status';
       default:
         return 'Unknown';
     }
@@ -354,13 +354,13 @@ class ComparisonViewer extends StatelessWidget {
   String _getDatasetDate(String dataset) {
     switch (dataset) {
       case 'before':
-        return 'Sep 25, 2023';
+        return 'Jan 15, 2024';
       case 'during':
-        return 'Sep 28, 2023';
+        return 'Apr 20, 2024';
       case 'after':
-        return 'Oct 2, 2023';
+        return 'Jul 10, 2024';
       case 'recovery':
-        return 'Oct 15, 2023';
+        return 'Oct 5, 2024';
       default:
         return 'Unknown';
     }
