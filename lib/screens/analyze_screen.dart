@@ -3,15 +3,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../widgets/layer_control_panel.dart';
 import '../widgets/measurement_tools.dart';
-import '../widgets/sar_viewer.dart';
-import '../widgets/region_info_panel.dart';
 import '../widgets/spill_detail_popup.dart';
-import '../models/map_region.dart';
 import '../models/oil_spill_data.dart';
-import '../services/region_data_service.dart';
 import '../services/sar_data_service.dart';
 import 'time_series_screen.dart';
 import 'data_management_screen.dart';
+import 'statistics_dashboard_screen.dart';
 
 class AnalyzeScreen extends StatefulWidget {
   const AnalyzeScreen({super.key});
@@ -496,44 +493,9 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   }
 
   void _showStatistics() {
-    final stats = _sarDataService.getStatistics();
-
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'SAR Data Statistics',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 20),
-            _buildStatRow(Icons.dataset, 'Total Data Points', '${stats['total']}'),
-            _buildStatRow(
-                Icons.warning, 'Oil Candidates', '${stats['oil_candidates']}'),
-            _buildStatRow(Icons.water, 'Water Points', '${stats['water_points']}'),
-            if (stats['ship_related'] > 0)
-              _buildStatRow(Icons.directions_boat, 'Ship Related',
-                  '${stats['ship_related']}'),
-            if (stats['high_risk'] > 0)
-              _buildStatRow(
-                  Icons.error, 'High Risk (Oil + Ship)', '${stats['high_risk']}'),
-            _buildStatRow(
-                Icons.calendar_today, 'Unique Dates', '${stats['unique_dates']}'),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
-                label: const Text('Close'),
-              ),
-            ),
-          ],
-        ),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => StatisticsDashboardScreen(data: _allData),
       ),
     );
   }
