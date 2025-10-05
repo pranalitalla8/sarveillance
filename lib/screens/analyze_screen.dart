@@ -4,6 +4,8 @@ import 'package:latlong2/latlong.dart';
 import '../widgets/layer_control_panel.dart';
 import '../widgets/measurement_tools.dart';
 import '../widgets/sar_viewer.dart';
+import '../services/sar_data_service.dart';
+import '../models/oil_spill_data.dart';
 
 class AnalyzeScreen extends StatefulWidget {
   const AnalyzeScreen({super.key});
@@ -16,6 +18,30 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   bool _showLayerPanel = false;
   bool _showMeasurementTools = false;
   String _selectedTool = 'none';
+  List<OilSpillData> _oilSpillData = [];
+  bool _isLoading = true;
+  final SARDataService _sarDataService = SARDataService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSARData();
+  }
+
+  Future<void> _loadSARData() async {
+    try {
+      final data = await _sarDataService.loadSARData();
+      setState(() {
+        _oilSpillData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading SAR data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,8 +108,54 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.nasa.sar_app',
               ),
+              if (!_isLoading && _oilSpillData.isNotEmpty)
+                CircleLayer(
+                  circles: _oilSpillData.map((point) {
+                    Color markerColor;
+                    double radius;
+
+                    // Color based on SAR value (higher = more likely oil spill)
+                    if (point.sar >= 0.7) {
+                      markerColor = Colors.red.withOpacity(0.7);
+                      radius = 8;
+                    } else if (point.sar >= 0.4) {
+                      markerColor = Colors.orange.withOpacity(0.6);
+                      radius = 6;
+                    } else {
+                      markerColor = Colors.yellow.withOpacity(0.5);
+                      radius = 4;
+                    }
+
+                    return CircleMarker(
+                      point: LatLng(point.latitude, point.longitude),
+                      color: markerColor,
+                      borderColor: Colors.white.withOpacity(0.3),
+                      borderStrokeWidth: 1,
+                      radius: radius,
+                    );
+                  }).toList(),
+                ),
             ],
           ),
+          if (_isLoading)
+            Center(
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Loading SAR Data...',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           if (_showLayerPanel)
             Positioned(
               right: 16,
@@ -122,6 +194,10 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   }
 
   Widget _buildCompactInfoPanel() {
+    final highRiskPoints = _oilSpillData.where((p) => p.sar >= 0.7).length;
+    final mediumRiskPoints = _oilSpillData.where((p) => p.sar >= 0.4 && p.sar < 0.7).length;
+    final lowRiskPoints = _oilSpillData.where((p) => p.sar < 0.4).length;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -130,10 +206,26 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Hurricane Ian Impact',
+              'Chesapeake Bay SAR Analysis',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.circle, size: 8, color: Colors.red),
+                const SizedBox(width: 4),
+                Text('High: $highRiskPoints', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(width: 8),
+                const Icon(Icons.circle, size: 8, color: Colors.orange),
+                const SizedBox(width: 4),
+                Text('Med: $mediumRiskPoints', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(width: 8),
+                const Icon(Icons.circle, size: 8, color: Colors.yellow),
+                const SizedBox(width: 4),
+                Text('Low: $lowRiskPoints', style: Theme.of(context).textTheme.bodySmall),
+              ],
             ),
             const SizedBox(height: 2),
             Row(
@@ -141,7 +233,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 const Icon(Icons.satellite, size: 12),
                 const SizedBox(width: 4),
                 Text(
-                  'Sentinel-1 • 2 days ago',
+                  'Total points: ${_oilSpillData.length}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
