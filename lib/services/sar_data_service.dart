@@ -41,12 +41,27 @@ class SARDataService {
 
       // Convert remaining rows to OilSpillData objects
       _cachedData = [];
+      int shipSampleCount = 0;
       for (int i = 1; i < rows.length; i++) {
         try {
           // Create a map from headers and row values
           final Map<String, dynamic> rowMap = {};
           for (int j = 0; j < headers.length && j < rows[i].length; j++) {
             rowMap[headers[j]] = rows[i][j];
+          }
+
+          // TODO: REMOVE THIS - Adding sample ship data for demo (~50 fake ship correlations)
+          // When teammates provide AIS-labeled CSV with real vessel_flag data, remove this
+          if (rowMap['oil_candidate'] == 1 && shipSampleCount < 50) {
+            // Add fake ship data to every 20th oil spill for demo
+            if (i % 20 == 0) {
+              rowMap['vessel_flag'] = 'ship_related';
+              rowMap['num_ships'] = (shipSampleCount % 3) + 1; // 1-3 ships
+              final shipTypes = ['Cargo', 'Tanker', 'Fishing', 'Passenger'];
+              rowMap['ship_types'] = shipTypes[shipSampleCount % 4];
+              shipSampleCount++;
+              print('Added sample ship data at row $i: ${rowMap['num_ships']} ships, ${rowMap['ship_types']}');
+            }
           }
 
           final oilSpillData = OilSpillData.fromCsv(rowMap);
@@ -61,7 +76,10 @@ class SARDataService {
         }
       }
 
+      // Count ship-related points for debugging
+      final shipRelatedCount = _cachedData!.where((p) => p.isShipRelated).length;
       print('Loaded ${_cachedData!.length} oil spill data points');
+      print('Ship-related points: $shipRelatedCount');
       return _cachedData!;
     } catch (e) {
       print('Error loading SAR data: $e');
