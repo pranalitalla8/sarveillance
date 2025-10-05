@@ -22,7 +22,10 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   bool _highlightShipCorrelation = true;
   String _selectedTool = 'none';
   List<OilSpillData> _oilSpillData = [];
+  List<OilSpillData> _allData = [];
   bool _isLoading = true;
+  double _currentZoom = 9.0;
+  static const int MAX_MARKERS = 2000; // Limit for performance
   final SARDataService _sarDataService = SARDataService();
   final MapController _mapController = MapController();
 
@@ -39,10 +42,11 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
       final data = await _sarDataService.loadSARData();
       print('Received data: ${data.length} points');
       setState(() {
-        _oilSpillData = data;
+        _allData = data;
+        _oilSpillData = _sampleData(data);
         _isLoading = false;
       });
-      print('Loaded ${data.length} oil spill data points');
+      print('Loaded ${data.length} total points, displaying ${_oilSpillData.length}');
     } catch (e, stackTrace) {
       print('Error loading SAR data: $e');
       print('Stack trace: $stackTrace');
@@ -50,6 +54,43 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  List<OilSpillData> _sampleData(List<OilSpillData> data) {
+    if (data.length <= MAX_MARKERS) {
+      return data;
+    }
+
+    // Prioritize ship-related oil spills and sample the rest
+    final shipRelated = data.where((d) => d.isOilCandidate && d.isShipRelated).toList();
+    final oil = data.where((d) => d.isOilCandidate && !d.isShipRelated).toList();
+    final water = data.where((d) => !d.isOilCandidate).toList();
+
+    print('Sampling: ${shipRelated.length} ship-related, ${oil.length} oil, ${water.length} water');
+
+    // Always show all ship-related points
+    final result = <OilSpillData>[...shipRelated];
+    final remaining = MAX_MARKERS - shipRelated.length;
+
+    if (remaining <= 0) return result;
+
+    // Sample oil and water proportionally
+    final oilToShow = (remaining * 0.7).toInt();
+    final waterToShow = remaining - oilToShow;
+
+    // Evenly sample oil points
+    final oilStep = oil.length / oilToShow;
+    for (int i = 0; i < oilToShow && i * oilStep < oil.length; i++) {
+      result.add(oil[(i * oilStep).toInt()]);
+    }
+
+    // Evenly sample water points
+    final waterStep = water.length / waterToShow;
+    for (int i = 0; i < waterToShow && i * waterStep < water.length; i++) {
+      result.add(water[(i * waterStep).toInt()]);
+    }
+
+    return result;
   }
 
   void _showSpillDetails(OilSpillData spillData) {
@@ -155,8 +196,12 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                     Color markerColor;
                     double radius;
 
-                    // Color based on oil_candidate classification
-                    if (point.isOilCandidate) {
+                    // Prioritize ship-related coloring first
+                    if (_highlightShipCorrelation && point.isOilCandidate && point.isShipRelated) {
+                      // Orange for ship-related oil spills (potential illegal dumping)
+                      markerColor = Colors.orange.withOpacity(0.95);
+                      radius = 10;
+                    } else if (point.isOilCandidate) {
                       // Red for oil candidates
                       markerColor = Colors.red.withOpacity(0.7);
                       radius = 8;
@@ -164,12 +209,6 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                       // Blue for water
                       markerColor = Colors.blue.withOpacity(0.5);
                       radius = 5;
-                    }
-
-                    // Highlight ship-related oil spills in orange (when enabled)
-                    if (_highlightShipCorrelation && point.isOilCandidate && point.isShipRelated) {
-                      markerColor = Colors.orange.withOpacity(0.8);
-                      radius = 10;
                     }
 
                     return CircleMarker(
@@ -330,7 +369,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 const Icon(Icons.satellite, size: 12),
                 const SizedBox(width: 4),
                 Text(
-                  'Total: ${_oilSpillData.length}',
+                  'Showing: ${_oilSpillData.length} / ${_allData.length}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
