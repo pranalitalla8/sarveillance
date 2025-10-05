@@ -31,7 +31,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Explore SAR Data'),
+        title: const Text('Explore Oil Spill Data'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         flexibleSpace: Container(
@@ -56,12 +56,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Study Areas',
+                  'Chesapeake Bay Studies',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Explore SAR data from around the world',
+                  'Explore oil spill monitoring areas across Chesapeake Bay',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
@@ -123,8 +123,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddAreaDialog(),
-        icon: const Icon(Icons.add),
-        label: const Text('Add Area'),
+        icon: const Icon(Icons.add_location),
+        label: const Text('Add Region'),
       ),
     );
   }
@@ -142,12 +142,24 @@ class _ExploreScreenState extends State<ExploreScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Study Area'),
-        content: const Text('This feature would allow you to add new study areas from satellite data sources.'),
+        title: const Text('Add Monitoring Area'),
+        content: const Text('Add a new region in Chesapeake Bay for oil spill monitoring and analysis. This will create a custom study area with SAR satellite coverage.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Feature coming soon!'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            child: const Text('Add'),
           ),
         ],
       ),
