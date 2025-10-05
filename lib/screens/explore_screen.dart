@@ -145,14 +145,15 @@ class _StudyAreaDetailDialog extends StatelessWidget {
                       Icon(
                         Icons.location_on,
                         size: 16,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           studyArea.location,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.w600,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -263,7 +264,7 @@ class _StudyAreaDetailDialog extends StatelessWidget {
                 entry.value.toString(),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
