@@ -429,7 +429,6 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     );
   }
 
-<<<<<<< HEAD
   void _navigateToTimeSeries() {
     Navigator.of(context).push(
       MaterialPageRoute(
