@@ -46,6 +46,8 @@ class LayerControlPanel extends StatefulWidget {
 }
 
 class _LayerControlPanelState extends State<LayerControlPanel> {
+  late TextEditingController _dataPointController;
+
   final Map<String, bool> _layerVisibility = {
     'SAR Backscatter': true,
     'Coherence': false,
@@ -69,6 +71,28 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
     'Roads': 0.8,
     'Buildings': 0.7,
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _dataPointController = TextEditingController(
+      text: (widget.dataPointPercentage * 100).toInt().toString(),
+    );
+  }
+
+  @override
+  void didUpdateWidget(LayerControlPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.dataPointPercentage != widget.dataPointPercentage) {
+      _dataPointController.text = (widget.dataPointPercentage * 100).toInt().toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    _dataPointController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -339,34 +363,69 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  'Showing ${widget.displayedDataPoints} of ${widget.totalDataPoints} points',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Showing ${widget.displayedDataPoints} of ${widget.totalDataPoints} points',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
+                    Expanded(
+                      child: TextField(
+                        controller: _dataPointController,
+                        decoration: InputDecoration(
+                          labelText: 'Percentage',
+                          hintText: 'Enter 10-100',
+                          suffixText: '%',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onSubmitted: (value) {
+                          final percentage = int.tryParse(value);
+                          if (percentage != null && percentage >= 10 && percentage <= 100) {
+                            widget.onDataPointPercentageChanged(percentage / 100.0);
+                          } else {
+                            // Reset to current value if invalid
+                            _dataPointController.text = (widget.dataPointPercentage * 100).toInt().toString();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter a value between 10 and 100'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ),
-                    Text(
-                      '${(widget.dataPointPercentage * 100).toInt()}%',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        final percentage = int.tryParse(_dataPointController.text);
+                        if (percentage != null && percentage >= 10 && percentage <= 100) {
+                          widget.onDataPointPercentageChanged(percentage / 100.0);
+                        } else {
+                          _dataPointController.text = (widget.dataPointPercentage * 100).toInt().toString();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please enter a value between 10 and 100'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text('Apply'),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                Slider(
-                  value: widget.dataPointPercentage,
-                  min: 0.1,
-                  max: 1.0,
-                  divisions: 9,
-                  label: '${(widget.dataPointPercentage * 100).toInt()}%',
-                  onChanged: widget.onDataPointPercentageChanged,
-                ),
-                const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -383,7 +442,7 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Reduce data points for better performance',
+                          'Reduce data points for better performance (10-100%)',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
