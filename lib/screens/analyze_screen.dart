@@ -27,6 +27,12 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   // Environmental heatmap layers
   String? _activeHeatmap; // 'temperature', 'wind', 'precipitation', etc.
   double _heatmapOpacity = 0.6;
+  double _baseMapOpacity = 0.3; // Reduced opacity for base map to highlight oil
+
+  // Animation & presentation controls
+  bool _isAnimating = false;
+  int _currentAnimationIndex = 0;
+  List<OilSpillData> _animationData = [];
 
   // Google Earth Engine tile layers
   bool _showGEESAR = true;  // Show SAR imagery by default
@@ -197,6 +203,19 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             tooltip: 'Measurement Tools',
           ),
           IconButton(
+            icon: Icon(
+              _isAnimating ? Icons.pause_circle : Icons.play_circle,
+              color: _isAnimating ? Colors.green : null,
+            ),
+            onPressed: _toggleAnimation,
+            tooltip: _isAnimating ? 'Stop Animation' : 'Play Animation',
+          ),
+          IconButton(
+            icon: const Icon(Icons.shuffle),
+            onPressed: _showRandomSample,
+            tooltip: 'Show Random Sample',
+          ),
+          IconButton(
             icon: const Icon(Icons.storage),
             onPressed: () {
               Navigator.push(
@@ -239,6 +258,12 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.nasa.sar_app',
+                tileBuilder: (context, widget, tile) {
+                  return Opacity(
+                    opacity: _baseMapOpacity,
+                    child: widget,
+                  );
+                },
               ),
               // Google Earth Engine SAR imagery layer
               if (_showGEESAR && _geeSARTileUrl != null)
@@ -630,6 +655,82 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Animation controls for presentation
+  void _toggleAnimation() async {
+    if (_isAnimating) {
+      setState(() => _isAnimating = false);
+      return;
+    }
+
+    // Prepare animation data - sorted by date
+    setState(() {
+      _animationData = List.from(_allData);
+      _animationData.sort((a, b) => a.date.compareTo(b.date));
+      _isAnimating = true;
+      _currentAnimationIndex = 0;
+    });
+
+    // Animate through detections over time
+    while (_isAnimating && _currentAnimationIndex < _animationData.length) {
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (!_isAnimating) break;
+
+      setState(() {
+        _currentAnimationIndex++;
+        // Show cumulative detections up to current index
+        _oilSpillData = _animationData.sublist(
+          0,
+          (_currentAnimationIndex * 50).clamp(0, _animationData.length),
+        ).take(MAX_MARKERS).toList();
+      });
+    }
+
+    setState(() => _isAnimating = false);
+  }
+
+  // Show random oil sample for presentation
+  void _showRandomSample() {
+    final oilCandidates = _allData.where((d) => d.isOilCandidate).toList();
+    if (oilCandidates.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No oil candidates available')),
+      );
+      return;
+    }
+
+    // Pick 5-10 random samples
+    final sampleSize = (5 + (oilCandidates.length * 0.001).toInt()).clamp(5, 10);
+    final samples = <OilSpillData>[];
+    final random = DateTime.now().millisecondsSinceEpoch;
+
+    for (int i = 0; i < sampleSize && i < oilCandidates.length; i++) {
+      final index = (random + i * 17) % oilCandidates.length;
+      samples.add(oilCandidates[index]);
+    }
+
+    setState(() {
+      _oilSpillData = samples;
+    });
+
+    // Center map on first sample
+    if (samples.isNotEmpty) {
+      _mapController.move(
+        LatLng(samples.first.latitude, samples.first.longitude),
+        11.0,
+      );
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Showing $sampleSize random oil detection samples'),
+        action: SnackBarAction(
+          label: 'Show All',
+          onPressed: () => _loadSARData(),
+        ),
       ),
     );
   }
