@@ -65,6 +65,49 @@ class DataSourceService {
   /// Get data directory path
   String? get dataDirectoryPath => _dataDirectory?.path;
 
+  /// Download a file from Google Drive by file ID
+  Future<bool> downloadFileFromDrive({
+    required String fileId,
+    required String fileName,
+    required String subfolder,
+    Function(int received, int total)? onProgress,
+  }) async {
+    try {
+      if (_dataDirectory == null) {
+        print('Data directory not initialized');
+        return false;
+      }
+
+      final url = 'https://drive.google.com/uc?export=download&id=$fileId';
+      print('Downloading from: $url');
+      
+      final response = await http.get(Uri.parse(url));
+      
+      if (response.statusCode == 200) {
+        // Create subfolder if it doesn't exist
+        final targetDir = Directory(path.join(_dataDirectory!.path, subfolder));
+        if (!await targetDir.exists()) {
+          await targetDir.create(recursive: true);
+        }
+        
+        // Save the file
+        final file = File(path.join(targetDir.path, fileName));
+        await file.writeAsBytes(response.bodyBytes);
+        
+        print('File saved to: ${file.path}');
+        print('File size: ${response.bodyBytes.length} bytes');
+        
+        return true;
+      } else {
+        print('HTTP error: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error downloading file: $e');
+      return false;
+    }
+  }
+
   /// Download Chesapeake Bay shapefile
   Future<bool> downloadChesapeakeBayShapefile() async {
     try {
