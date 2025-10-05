@@ -18,6 +18,8 @@ class AnalyzeScreen extends StatefulWidget {
 class _AnalyzeScreenState extends State<AnalyzeScreen> {
   bool _showLayerPanel = false;
   bool _showMeasurementTools = false;
+  bool _showShipLayer = true;
+  bool _highlightShipCorrelation = true;
   String _selectedTool = 'none';
   List<OilSpillData> _oilSpillData = [];
   bool _isLoading = true;
@@ -164,8 +166,8 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                       radius = 5;
                     }
 
-                    // Highlight ship-related oil spills in orange
-                    if (point.isOilCandidate && point.isShipRelated) {
+                    // Highlight ship-related oil spills in orange (when enabled)
+                    if (_highlightShipCorrelation && point.isOilCandidate && point.isShipRelated) {
                       markerColor = Colors.orange.withOpacity(0.8);
                       radius = 10;
                     }
@@ -213,6 +215,14 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
               width: 300,
               child: LayerControlPanel(
                 onClose: () => setState(() => _showLayerPanel = false),
+                showShipLayer: _showShipLayer,
+                highlightShipCorrelation: _highlightShipCorrelation,
+                onShipLayerChanged: (value) {
+                  setState(() => _showShipLayer = value);
+                },
+                onShipCorrelationChanged: (value) {
+                  setState(() => _highlightShipCorrelation = value);
+                },
               ),
             ),
           if (_showMeasurementTools)

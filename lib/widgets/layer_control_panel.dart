@@ -2,10 +2,18 @@ import 'package:flutter/material.dart';
 
 class LayerControlPanel extends StatefulWidget {
   final VoidCallback onClose;
+  final bool showShipLayer;
+  final bool highlightShipCorrelation;
+  final ValueChanged<bool> onShipLayerChanged;
+  final ValueChanged<bool> onShipCorrelationChanged;
 
   const LayerControlPanel({
     super.key,
     required this.onClose,
+    required this.showShipLayer,
+    required this.highlightShipCorrelation,
+    required this.onShipLayerChanged,
+    required this.onShipCorrelationChanged,
   });
 
   @override
@@ -74,6 +82,8 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                _buildShipTrackingSection(),
+                const Divider(height: 32),
                 _buildLayerSection('SAR Data', [
                   'SAR Backscatter',
                   'Coherence',
@@ -96,6 +106,78 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildShipTrackingSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.directions_boat, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Ship Tracking',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                SwitchListTile(
+                  value: widget.showShipLayer,
+                  onChanged: widget.onShipLayerChanged,
+                  title: const Text('Show Ship Data'),
+                  subtitle: const Text('Display AIS ship markers'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+                const Divider(),
+                SwitchListTile(
+                  value: widget.highlightShipCorrelation,
+                  onChanged: widget.showShipLayer ? widget.onShipCorrelationChanged : null,
+                  title: const Text('Highlight Ship Correlation'),
+                  subtitle: const Text('Show oil spills near ships in orange'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Orange markers indicate potential illegal dumping',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
