@@ -15,6 +15,10 @@ class LayerControlPanel extends StatefulWidget {
   final bool showGEEOilDetection;
   final ValueChanged<bool> onGEESARChanged;
   final ValueChanged<bool> onGEEOilDetectionChanged;
+  final double dataPointPercentage;
+  final ValueChanged<double> onDataPointPercentageChanged;
+  final int totalDataPoints;
+  final int displayedDataPoints;
 
   const LayerControlPanel({
     super.key,
@@ -31,6 +35,10 @@ class LayerControlPanel extends StatefulWidget {
     required this.showGEEOilDetection,
     required this.onGEESARChanged,
     required this.onGEEOilDetectionChanged,
+    required this.dataPointPercentage,
+    required this.onDataPointPercentageChanged,
+    required this.totalDataPoints,
+    required this.displayedDataPoints,
   });
 
   @override
@@ -102,6 +110,8 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
                 _buildShipTrackingSection(),
                 const Divider(height: 32),
                 _buildGEESection(),
+                const Divider(height: 32),
+                _buildDataPointFilterSection(),
                 const Divider(height: 32),
                 _buildLayerSection('Environmental Heatmaps', [
                   'Temperature',
@@ -267,6 +277,89 @@ class _LayerControlPanelState extends State<LayerControlPanel> {
                       Expanded(
                         child: Text(
                           'Requires backend server running',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDataPointFilterSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.filter_list, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Data Point Filter',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Showing ${widget.displayedDataPoints} of ${widget.totalDataPoints} points',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '${(widget.dataPointPercentage * 100).toInt()}%',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Slider(
+                  value: widget.dataPointPercentage,
+                  min: 0.1,
+                  max: 1.0,
+                  divisions: 9,
+                  label: '${(widget.dataPointPercentage * 100).toInt()}%',
+                  onChanged: widget.onDataPointPercentageChanged,
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Reduce data points for better performance',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),

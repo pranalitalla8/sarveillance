@@ -34,10 +34,10 @@ class OilSpillData {
   // GeoJSON (optional, for reference)
   final String? geoJson;
 
-  // AIS (Ship tracking) - OPTIONAL, will be null until teammates run AIS script
-  final String? vessel_flag;      // 'ship_related' or 'no_ship_detected'
-  final int? num_ships;
-  final String? ship_types;
+  // AIS (Ship tracking) - from combined AIS data
+  final int? num_ships_near_point;          // Number of ships detected near this point
+  final double? closest_ship_distance_km;   // Distance to closest ship in km
+  final double? avg_ship_speed;             // Average speed of nearby ships
 
   const OilSpillData({
     required this.systemIndex,
@@ -61,37 +61,42 @@ class OilSpillData {
     required this.wind_speed_10m,
     required this.wind_direction_degrees,
     this.geoJson,
-    this.vessel_flag,
-    this.num_ships,
-    this.ship_types,
+    this.num_ships_near_point,
+    this.closest_ship_distance_km,
+    this.avg_ship_speed,
   });
 
   factory OilSpillData.fromCsv(Map<String, dynamic> row) {
+    // Helper to get value case-insensitively
+    dynamic getValue(String key) {
+      return row[key] ?? row[key.toLowerCase()] ?? row[key.toUpperCase()];
+    }
+
     return OilSpillData(
-      systemIndex: row['system:index']?.toString() ?? '',
-      longitude: _parseDouble(row['longitude']),
-      latitude: _parseDouble(row['latitude']),
-      date: DateTime.parse(row['date'] ?? '2015-01-01'),
-      VV: _parseDouble(row['VV']),
-      VH: _parseDouble(row['VH']),
-      VH_VV_ratio: _parseDouble(row['VH_VV_ratio']),
-      angle: _parseDouble(row['angle']),
-      orbit_direction: _parseInt(row['orbit_direction']),
-      orbit_type: row['orbit_type']?.toString() ?? 'ASC',
-      oil_candidate: _parseInt(row['oil_candidate']),
-      temperature_2m: _parseDouble(row['temperature_2m']),
-      dewpoint_temperature_2m: _parseDouble(row['dewpoint_temperature_2m']),
-      surface_pressure: _parseDouble(row['surface_pressure']),
-      total_precipitation: _parseDouble(row['total_precipitation']),
-      surface_net_solar_radiation: _parseDouble(row['surface_net_solar_radiation']),
-      u_component_of_wind_10m: _parseDouble(row['u_component_of_wind_10m']),
-      v_component_of_wind_10m: _parseDouble(row['v_component_of_wind_10m']),
-      wind_speed_10m: _parseDouble(row['wind_speed_10m']),
-      wind_direction_degrees: _parseDouble(row['wind_direction_degrees']),
-      geoJson: row['.geo']?.toString(),
-      vessel_flag: row['vessel_flag']?.toString(),
-      num_ships: row['num_ships'] != null ? _parseInt(row['num_ships']) : null,
-      ship_types: row['ship_types']?.toString(),
+      systemIndex: getValue('system:index')?.toString() ?? '',
+      longitude: _parseDouble(getValue('longitude')),
+      latitude: _parseDouble(getValue('latitude')),
+      date: _parseDate(getValue('date')),
+      VV: _parseDouble(getValue('vv')),
+      VH: _parseDouble(getValue('vh')),
+      VH_VV_ratio: _parseDouble(getValue('vh_vv_ratio')),
+      angle: _parseDouble(getValue('angle')),
+      orbit_direction: _parseInt(getValue('orbit_direction')),
+      orbit_type: getValue('orbit_type')?.toString() ?? 'ASC',
+      oil_candidate: _parseInt(getValue('oil_candidate')),
+      temperature_2m: _parseDouble(getValue('temperature_2m')),
+      dewpoint_temperature_2m: _parseDouble(getValue('dewpoint_temperature_2m')),
+      surface_pressure: _parseDouble(getValue('surface_pressure')),
+      total_precipitation: _parseDouble(getValue('total_precipitation')),
+      surface_net_solar_radiation: _parseDouble(getValue('surface_net_solar_radiation')),
+      u_component_of_wind_10m: _parseDouble(getValue('u_component_of_wind_10m')),
+      v_component_of_wind_10m: _parseDouble(getValue('v_component_of_wind_10m')),
+      wind_speed_10m: _parseDouble(getValue('wind_speed_10m')),
+      wind_direction_degrees: _parseDouble(getValue('wind_direction_degrees')),
+      geoJson: getValue('.geo')?.toString(),
+      num_ships_near_point: getValue('num_ships_near_point') != null ? _parseInt(getValue('num_ships_near_point')) : null,
+      closest_ship_distance_km: getValue('closest_ship_distance_km') != null ? _parseDouble(getValue('closest_ship_distance_km')) : null,
+      avg_ship_speed: getValue('avg_ship_speed') != null ? _parseDouble(getValue('avg_ship_speed')) : null,
     );
   }
 
@@ -99,7 +104,10 @@ class OilSpillData {
     if (value == null) return 0.0;
     if (value is double) return value;
     if (value is int) return value.toDouble();
-    if (value is String) return double.tryParse(value) ?? 0.0;
+    if (value is String) {
+      if (value.isEmpty) return 0.0;
+      return double.tryParse(value) ?? 0.0;
+    }
     return 0.0;
   }
 
@@ -107,8 +115,26 @@ class OilSpillData {
     if (value == null) return 0;
     if (value is int) return value;
     if (value is double) return value.toInt();
-    if (value is String) return int.tryParse(value) ?? 0;
+    if (value is String) {
+      if (value.isEmpty) return 0;
+      return int.tryParse(value) ?? 0;
+    }
     return 0;
+  }
+
+  static DateTime _parseDate(dynamic value) {
+    if (value == null) return DateTime(2015, 1, 1);
+    try {
+      if (value is DateTime) return value;
+      if (value is String) {
+        if (value.isEmpty) return DateTime(2015, 1, 1);
+        return DateTime.parse(value);
+      }
+      return DateTime(2015, 1, 1);
+    } catch (e) {
+      // Handle invalid date formats (like corrupt numeric values in CSV)
+      return DateTime(2015, 1, 1);
+    }
   }
 
   // Helper methods
@@ -122,7 +148,7 @@ class OilSpillData {
 
   String get longitudeFormatted => '${longitude.abs().toStringAsFixed(2)}°${longitude >= 0 ? 'E' : 'W'}';
 
-  bool get hasShipData => vessel_flag != null;
+  bool get hasShipData => num_ships_near_point != null && num_ships_near_point! > 0;
 
-  bool get isShipRelated => vessel_flag == 'ship_related';
+  bool get isShipRelated => hasShipData && (closest_ship_distance_km ?? double.infinity) < 5.0; // Within 5km
 }

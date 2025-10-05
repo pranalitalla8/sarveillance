@@ -26,10 +26,8 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
   String? _activeHeatmap;
   double _heatmapOpacity = 0.6;
 
-  // Animation & presentation controls
-  bool _isAnimating = false;
-  int _currentAnimationIndex = 0;
-  List<OilSpillData> _animationData = [];
+  // Data point filtering
+  double _dataPointPercentage = 1.0; // 100% by default
 
   // Google Earth Engine tile layers
   bool _showGEESAR = true;
@@ -266,6 +264,14 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
     });
   }
 
+  void _applyDataPointFilter() {
+    final targetCount = (_allData.length * _dataPointPercentage).round();
+    setState(() {
+      _oilSpillData = _allData.take(targetCount.clamp(0, maxMarkers)).toList();
+    });
+    _updateMarkers();
+  }
+
   void _showSpillDetail(OilSpillData spill) {
     showDialog(
       context: context,
@@ -387,6 +393,48 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
                     _buildInfoRow('• Pressure:', '${spill.surface_pressure.toStringAsFixed(1)} hPa'),
 
                     const SizedBox(height: 16),
+
+                    // Ship Tracking (AIS)
+                    if (spill.hasShipData) ...[
+                      Row(
+                        children: [
+                          const Icon(Icons.directions_boat, color: Colors.white70, size: 16),
+                          const SizedBox(width: 8),
+                          const Text(
+                            '🚢 Ship Tracking (AIS)',
+                            style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      _buildInfoRow('• Ships Detected:', '${spill.num_ships_near_point ?? 0}'),
+                      if (spill.closest_ship_distance_km != null)
+                        _buildInfoRow('• Closest Ship:', '${spill.closest_ship_distance_km!.toStringAsFixed(2)} km'),
+                      if (spill.avg_ship_speed != null)
+                        _buildInfoRow('• Avg Ship Speed:', '${spill.avg_ship_speed!.toStringAsFixed(1)} knots'),
+                      if (spill.isShipRelated)
+                        Container(
+                          margin: const EdgeInsets.only(top: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.orange, width: 1),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.warning, color: Colors.orange, size: 14),
+                              SizedBox(width: 4),
+                              Text(
+                                'Ship-Related Detection (<5km)',
+                                style: TextStyle(color: Colors.orange, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                    ],
 
                     // Classification
                     Container(
@@ -590,6 +638,15 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
                     _heatmapOpacity = value;
                   });
                 },
+                dataPointPercentage: _dataPointPercentage,
+                onDataPointPercentageChanged: (value) {
+                  setState(() {
+                    _dataPointPercentage = value;
+                    _applyDataPointFilter();
+                  });
+                },
+                totalDataPoints: _allData.length,
+                displayedDataPoints: _oilSpillData.length,
               ),
             ),
           // Chesapeake Bay SAR Analysis Card
@@ -713,15 +770,6 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
           ),
           const SizedBox(height: 8),
           FloatingActionButton(
-            heroTag: "animation",
-            mini: true,
-            backgroundColor: _isAnimating ? Colors.green : null,
-            onPressed: _toggleAnimation,
-            tooltip: _isAnimating ? 'Stop Animation' : 'Play Animation',
-            child: Icon(_isAnimating ? Icons.pause_circle : Icons.play_circle),
-          ),
-          const SizedBox(height: 8),
-          FloatingActionButton(
             heroTag: "stats",
             mini: true,
             onPressed: () => _showStatistics(),
@@ -750,80 +798,6 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
     );
   }
 
-  void _toggleAnimation() async {
-    if (_isAnimating) {
-      setState(() => _isAnimating = false);
-      return;
-    }
-
-    setState(() {
-      _animationData = List.from(_allData);
-      _animationData.sort((a, b) => a.date.compareTo(b.date));
-      _isAnimating = true;
-      _currentAnimationIndex = 0;
-    });
-
-    while (_isAnimating && _currentAnimationIndex < _animationData.length) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      if (!_isAnimating) break;
-
-      setState(() {
-        _currentAnimationIndex++;
-        _oilSpillData = _animationData.sublist(
-          0,
-          (_currentAnimationIndex * 50).clamp(0, _animationData.length),
-        ).take(maxMarkers).toList();
-      });
-
-      _updateMarkers();
-    }
-
-    setState(() => _isAnimating = false);
-  }
-
-  void _showRandomSample() {
-    final oilCandidates = _allData.where((d) => d.isOilCandidate).toList();
-    if (oilCandidates.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No oil candidates available')),
-      );
-      return;
-    }
-
-    final sampleSize = (5 + (oilCandidates.length * 0.001).toInt()).clamp(5, 10);
-    final samples = <OilSpillData>[];
-    final random = DateTime.now().millisecondsSinceEpoch;
-
-    for (int i = 0; i < sampleSize && i < oilCandidates.length; i++) {
-      final index = (random + i * 17) % oilCandidates.length;
-      samples.add(oilCandidates[index]);
-    }
-
-    setState(() {
-      _oilSpillData = samples;
-    });
-
-    _updateMarkers();
-
-    if (samples.isNotEmpty && _mapController != null) {
-      _mapController!.animateCamera(
-        CameraUpdate.newLatLngZoom(
-          LatLng(samples.first.latitude, samples.first.longitude),
-          11.0,
-        ),
-      );
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Showing $sampleSize random oil detection samples'),
-        action: SnackBarAction(
-          label: 'Show All',
-          onPressed: () => _loadSARData(),
-        ),
-      ),
-    );
-  }
 }
 
 // Custom tile provider for Google Earth Engine tiles with caching

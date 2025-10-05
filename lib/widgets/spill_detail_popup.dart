@@ -138,19 +138,20 @@ class SpillDetailPopup extends StatelessWidget {
                       ],
                     ),
 
-                    // Ship Activity (if available)
+                    // Ship Activity (AIS tracking - if available)
                     if (spillData.hasShipData) ...[
                       const SizedBox(height: 20),
                       _buildSection(
                         icon: Icons.directions_boat,
-                        title: '🚢 Ship Activity',
+                        title: '🚢 Ship Tracking (AIS)',
                         children: [
-                          _buildInfoRow('Status', spillData.vessel_flag ?? 'N/A'),
-                          if (spillData.num_ships != null)
-                            _buildInfoRow('Vessels Detected',
-                                '${spillData.num_ships} ${spillData.num_ships == 1 ? 'vessel' : 'vessels'}'),
-                          if (spillData.ship_types != null)
-                            _buildInfoRow('Types', spillData.ship_types!),
+                          _buildInfoRow('Ships Detected', '${spillData.num_ships_near_point ?? 0}'),
+                          if (spillData.closest_ship_distance_km != null)
+                            _buildInfoRow('Closest Ship', '${spillData.closest_ship_distance_km!.toStringAsFixed(2)} km'),
+                          if (spillData.avg_ship_speed != null)
+                            _buildInfoRow('Avg Ship Speed', '${spillData.avg_ship_speed!.toStringAsFixed(1)} knots'),
+                          if (spillData.isShipRelated)
+                            _buildInfoRow('Status', '⚠️ Ship-Related (<5km)'),
                         ],
                       ),
                     ],

@@ -17,9 +17,9 @@ class SARDataService {
     }
 
     try {
-      // Load CSV from assets
-      print('Loading CSV file...');
-      final String csvString = await rootBundle.loadString('assets/data/Chesapeake_SAR_Envi_Multi_Date_548_dates.csv');
+      // Load CSV from assets (combined AIS data with ship tracking)
+      print('Loading CSV file with AIS ship data...');
+      final String csvString = await rootBundle.loadString('assets/data/combined_ais_data.csv');
       print('CSV loaded, length: ${csvString.length} characters');
 
       // Parse CSV with proper field delimiter and text delimiter handling
