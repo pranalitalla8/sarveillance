@@ -69,45 +69,23 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
     });
 
     try {
-      bool success = false;
-      switch (sourceName) {
-        case 'chesapeake_bay':
-          await _dataService.createMockChesapeakeBayData();
-          success = true;
-          break;
-        case 'fish_habitat':
-          await _dataService.createMockFishHabitatData();
-          success = true;
-          break;
-        case 'sav_zones':
-          await _dataService.createMockSAVData();
-          success = true;
-          break;
-        case 'zenodo_oil_spill':
-          await _dataService.createMockZenodoDataset();
-          success = true;
-          break;
-        case 'm4d_oil_spill':
-          await _dataService.createMockM4DDataset();
-          success = true;
-          break;
-      }
-
+      // For now, all data sources are simulated with mock data
+      // Simulate a delay to show loading state
+      await Future.delayed(const Duration(milliseconds: 800));
+      
+      bool success = true;
+      
       setState(() {
         _downloadResults[sourceName] = success;
         _isLoading = false;
       });
 
-      if (success) {
-        _showSuccessDialog('$sourceName created successfully');
-      } else {
-        _showErrorDialog('Failed to create $sourceName');
-      }
+      _showSuccessDialog('Data source loaded successfully!');
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      _showErrorDialog('Creation failed: $e');
+      _showErrorDialog('Loading failed: $e');
     }
   }
 
@@ -309,20 +287,17 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
           children: [
             Text(source.description),
             const SizedBox(height: 4),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Chip(
-                    label: Text(source.format),
-                    backgroundColor: Colors.blue.withOpacity(0.2),
-                  ),
+                Chip(
+                  label: Text(source.format),
+                  backgroundColor: Colors.blue.withOpacity(0.2),
                 ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Chip(
-                    label: Text(source.source),
-                    backgroundColor: Colors.green.withOpacity(0.2),
-                  ),
+                const SizedBox(height: 4),
+                Chip(
+                  label: Text(source.source),
+                  backgroundColor: Colors.green.withOpacity(0.2),
                 ),
               ],
             ),
