@@ -99,13 +99,14 @@ class _BeforeAfterSliderState extends State<BeforeAfterSlider>
     return Column(
       children: [
         _buildTimelineTitle(),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         Expanded(
+          flex: 3,
           child: _buildComparisonView(),
         ),
-        const SizedBox(height: 24),
-        _buildSliderControl(),
         const SizedBox(height: 16),
+        _buildSliderControl(),
+        const SizedBox(height: 12),
         _buildDataInfo(),
       ],
     );
@@ -147,31 +148,9 @@ class _BeforeAfterSliderState extends State<BeforeAfterSlider>
 
   Widget _buildBeforeView() {
     return Positioned.fill(
-      child: AnimatedBuilder(
-        animation: _waveController,
-        builder: (context, child) {
-          return CustomPaint(
-            painter: SarDataPainter(
-              data: widget.beforeData,
-              animationValue: _waveController.value,
-              isPristine: true,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFF0EA5E9).withValues(alpha: 0.6),
-                    const Color(0xFF0284C7).withValues(alpha: 0.4),
-                    const Color(0xFF0369A1).withValues(alpha: 0.2),
-                  ],
-                ),
-              ),
-              child: _buildPristineWaterContent(),
-            ),
-          );
-        },
+      child: Image.asset(
+        'assets/images/SARBeforeImage.png',
+        fit: BoxFit.cover,
       ),
     );
   }
@@ -182,120 +161,10 @@ class _BeforeAfterSliderState extends State<BeforeAfterSlider>
     return Positioned.fill(
       child: ClipRect(
         clipper: _SliderClipper(clipWidth),
-        child: AnimatedBuilder(
-          animation: _waveController,
-          builder: (context, child) {
-            return CustomPaint(
-              painter: SarDataPainter(
-                data: widget.afterData,
-                animationValue: _waveController.value,
-                isPristine: false,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      const Color(0xFFEF4444).withValues(alpha: 0.6),
-                      const Color(0xFFDC2626).withValues(alpha: 0.4),
-                      const Color(0xFFB91C1C).withValues(alpha: 0.2),
-                    ],
-                  ),
-                ),
-                child: _buildImpactedWaterContent(),
-              ),
-            );
-          },
+        child: Image.asset(
+          'assets/images/SARAfterImage.png',
+          fit: BoxFit.cover,
         ),
-      ),
-    );
-  }
-
-  Widget _buildPristineWaterContent() {
-    return Stack(
-      children: [
-        // Gentle waves
-        Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _waveController,
-            builder: (context, child) {
-              return CustomPaint(
-                painter: WavePatternPainter(
-                  _waveController.value,
-                  Colors.white.withValues(alpha: 0.3),
-                  isCalm: true,
-                ),
-              );
-            },
-          ),
-        ),
-        // Natural features
-        _buildFeaturePoint(0.3, 0.4, 'Healthy Marine Life', Colors.green),
-        _buildFeaturePoint(0.7, 0.6, 'Clean Water', Colors.blue),
-        _buildFeaturePoint(0.5, 0.7, 'Natural Ice Patterns', Colors.cyan),
-      ],
-    );
-  }
-
-  Widget _buildImpactedWaterContent() {
-    return Stack(
-      children: [
-        // Disturbed waves
-        Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _waveController,
-            builder: (context, child) {
-              return CustomPaint(
-                painter: WavePatternPainter(
-                  _waveController.value,
-                  Colors.white.withValues(alpha: 0.2),
-                  isCalm: false,
-                ),
-              );
-            },
-          ),
-        ),
-        // Impact features
-        _buildFeaturePoint(0.2, 0.3, 'Oil Spill', Colors.red),
-        _buildFeaturePoint(0.8, 0.5, 'Illegal Dumping', Colors.orange),
-        _buildFeaturePoint(0.4, 0.8, 'Ship Traffic', Colors.yellow),
-        _buildFeaturePoint(0.6, 0.2, 'Disrupted Ice', Colors.purple),
-      ],
-    );
-  }
-
-  Widget _buildFeaturePoint(double x, double y, String label, Color color) {
-    return Positioned(
-      left: x * (MediaQuery.of(context).size.width - 100),
-      top: y * 200,
-      child: AnimatedBuilder(
-        animation: _waveController,
-        builder: (context, child) {
-          final pulse = 1.0 + (0.3 * math.sin(_waveController.value * 2 * math.pi));
-          return Transform.scale(
-            scale: pulse,
-            child: Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.6),
-                    blurRadius: 8,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: Tooltip(
-                message: label,
-                child: const SizedBox(),
-              ),
-            ),
-          );
-        },
       ),
     );
   }

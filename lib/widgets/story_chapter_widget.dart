@@ -105,7 +105,7 @@ class _StoryChapterWidgetState extends State<StoryChapterWidget>
               _buildChapterHeader(),
               const SizedBox(height: 32),
               SizedBox(
-                height: screenHeight * 0.5,
+                height: screenHeight * 0.65,
                 child: _buildInteractiveContent(),
               ),
               const SizedBox(height: 100), // Space for navigation
@@ -308,18 +308,24 @@ class _StoryChapterWidgetState extends State<StoryChapterWidget>
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
+          const SizedBox(height: 16),
+          ElevatedButton(
             onPressed: _handleIntroInteraction,
-            icon: const Icon(Icons.touch_app),
-            label: const Text('Begin the Journey'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF8B5CF6),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(20),
               ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.touch_app, size: 20),
+                SizedBox(height: 4),
+                Text('Begin the Journey', style: TextStyle(fontSize: 14)),
+              ],
             ),
           ),
         ],
