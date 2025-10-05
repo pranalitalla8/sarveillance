@@ -18,24 +18,24 @@ class _CompareScreenState extends State<CompareScreen> {
 
   final List<Map<String, dynamic>> _timelineData = [
     {
-      'date': DateTime(2023, 9, 25),
-      'label': 'Pre-Hurricane',
-      'description': 'Normal conditions before Hurricane Ian',
+      'date': DateTime(2024, 1, 15),
+      'label': 'Winter Baseline',
+      'description': 'Normal winter conditions - highest spill activity',
     },
     {
-      'date': DateTime(2023, 9, 28),
-      'label': 'During Hurricane',
-      'description': 'Hurricane Ian landfall',
+      'date': DateTime(2024, 4, 20),
+      'label': 'Spring Period',
+      'description': 'Moderate shipping traffic - seasonal comparison',
     },
     {
-      'date': DateTime(2023, 10, 2),
-      'label': 'Post-Hurricane',
-      'description': 'Immediate aftermath assessment',
+      'date': DateTime(2024, 7, 10),
+      'label': 'Summer Low',
+      'description': 'Lowest detection rates - calm seas',
     },
     {
-      'date': DateTime(2023, 10, 15),
-      'label': 'Recovery Phase',
-      'description': 'Two weeks after hurricane',
+      'date': DateTime(2024, 10, 5),
+      'label': 'Current Status',
+      'description': 'Latest oil spill detection data',
     },
   ];
 
@@ -43,7 +43,7 @@ class _CompareScreenState extends State<CompareScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Compare SAR Data'),
+        title: const Text('Compare Oil Spill Data'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         flexibleSpace: Container(
@@ -195,10 +195,10 @@ class _CompareScreenState extends State<CompareScreen> {
                 contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
               items: const [
-                DropdownMenuItem(value: 'before', child: Text('Pre-Hurricane')),
-                DropdownMenuItem(value: 'during', child: Text('During Hurricane')),
-                DropdownMenuItem(value: 'after', child: Text('Post-Hurricane')),
-                DropdownMenuItem(value: 'recovery', child: Text('Recovery Phase')),
+                DropdownMenuItem(value: 'before', child: Text('Winter Baseline (Jan 2024)')),
+                DropdownMenuItem(value: 'during', child: Text('Spring Period (Apr 2024)')),
+                DropdownMenuItem(value: 'after', child: Text('Summer Low (Jul 2024)')),
+                DropdownMenuItem(value: 'recovery', child: Text('Current Status (Oct 2024)')),
               ],
               onChanged: (newValue) {
                 if (newValue != null) {
@@ -239,13 +239,13 @@ class _CompareScreenState extends State<CompareScreen> {
   String _getDateForDataset(String dataset) {
     switch (dataset) {
       case 'before':
-        return 'Sep 25, 2023';
+        return 'Jan 15, 2024 - Winter Baseline';
       case 'during':
-        return 'Sep 28, 2023';
+        return 'Apr 20, 2024 - Spring Period';
       case 'after':
-        return 'Oct 2, 2023';
+        return 'Jul 10, 2024 - Summer Low';
       case 'recovery':
-        return 'Oct 15, 2023';
+        return 'Oct 5, 2024 - Current Status';
       default:
         return 'Unknown';
     }
@@ -282,30 +282,30 @@ class _CompareScreenState extends State<CompareScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Change Analysis Results',
+              'Oil Spill Comparison Analysis',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            _buildAnalysisMetric('Area Changed', '15.2 km²', Icons.crop_free),
+            _buildAnalysisMetric('Total Detections Change', '+247 spills', Icons.trending_up),
             const SizedBox(height: 8),
-            _buildAnalysisMetric('Damage Detected', '1,247 structures', Icons.warning),
+            _buildAnalysisMetric('Affected Area Change', '+12.4 km²', Icons.crop_free),
             const SizedBox(height: 8),
-            _buildAnalysisMetric('Coherence Loss', '68% average', Icons.scatter_plot),
+            _buildAnalysisMetric('Ship Correlation Change', '+15% increase', Icons.directions_boat),
             const SizedBox(height: 8),
-            _buildAnalysisMetric('Flooded Area', '8.9 km²', Icons.water),
+            _buildAnalysisMetric('New Hotspots Identified', '3 areas', Icons.place),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Generating detailed report...'),
+                    content: Text('Generating oil spill comparison report...'),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
               },
               icon: const Icon(Icons.file_download),
-              label: const Text('Export Report'),
+              label: const Text('Export Comparison'),
             ),
           ],
         ),

@@ -16,21 +16,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final List<Map<String, dynamic>> _savedAnalyses = [
     {
-      'title': 'Hurricane Ian Damage Assessment',
-      'date': 'Oct 15, 2023',
+      'title': 'Chesapeake Bay Winter Spill Analysis',
+      'date': 'Oct 5, 2024',
       'type': 'Change Detection',
       'size': '2.4 GB',
     },
     {
-      'title': 'Amazon Deforestation 2023',
-      'date': 'Sep 28, 2023',
+      'title': 'Norfolk Port Oil Spill Trends 2024',
+      'date': 'Sep 28, 2024',
       'type': 'Time Series Analysis',
       'size': '1.8 GB',
     },
     {
-      'title': 'Tokyo Urban Growth',
-      'date': 'Sep 10, 2023',
-      'type': 'Urban Analysis',
+      'title': 'Baltimore Harbor Hotspot Mapping',
+      'date': 'Sep 10, 2024',
+      'type': 'Hotspot Analysis',
       'size': '3.1 GB',
     },
   ];
@@ -428,8 +428,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Icons.compare;
       case 'Time Series Analysis':
         return Icons.timeline;
-      case 'Urban Analysis':
-        return Icons.location_city;
+      case 'Hotspot Analysis':
+        return Icons.place;
       default:
         return Icons.analytics;
     }
