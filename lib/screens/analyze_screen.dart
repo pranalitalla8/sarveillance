@@ -3,7 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../widgets/layer_control_panel.dart';
 import '../widgets/measurement_tools.dart';
-import '../widgets/sar_viewer.dart';
+import '../widgets/spill_detail_popup.dart';
 import '../services/sar_data_service.dart';
 import '../models/oil_spill_data.dart';
 
@@ -21,6 +21,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   List<OilSpillData> _oilSpillData = [];
   bool _isLoading = true;
   final SARDataService _sarDataService = SARDataService();
+  final MapController _mapController = MapController();
 
   @override
   void initState() {
@@ -29,18 +30,30 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   }
 
   Future<void> _loadSARData() async {
+    print('_loadSARData() called');
     try {
+      print('Calling _sarDataService.loadSARData()...');
       final data = await _sarDataService.loadSARData();
+      print('Received data: ${data.length} points');
       setState(() {
         _oilSpillData = data;
         _isLoading = false;
       });
-    } catch (e) {
+      print('Loaded ${data.length} oil spill data points');
+    } catch (e, stackTrace) {
       print('Error loading SAR data: $e');
+      print('Stack trace: $stackTrace');
       setState(() {
         _isLoading = false;
       });
     }
+  }
+
+  void _showSpillDetails(OilSpillData spillData) {
+    showDialog(
+      context: context,
+      builder: (context) => SpillDetailPopup(spillData: spillData),
+    );
   }
 
   @override
@@ -99,9 +112,14 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
       body: Stack(
         children: [
           FlutterMap(
+            mapController: _mapController,
             options: MapOptions(
-              initialCenter: LatLng(37.8, -76.1), // Chesapeake Bay
+              initialCenter: const LatLng(37.8, -76.1), // Chesapeake Bay
               initialZoom: 9.0,
+              onTap: (tapPosition, point) {
+                // Find nearest marker when map is tapped
+                _findAndShowNearestSpill(point);
+              },
             ),
             children: [
               TileLayer(
@@ -114,23 +132,28 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                     Color markerColor;
                     double radius;
 
-                    // Color based on SAR value (higher = more likely oil spill)
-                    if (point.sar >= 0.7) {
+                    // Color based on oil_candidate classification
+                    if (point.isOilCandidate) {
+                      // Red for oil candidates
                       markerColor = Colors.red.withOpacity(0.7);
                       radius = 8;
-                    } else if (point.sar >= 0.4) {
-                      markerColor = Colors.orange.withOpacity(0.6);
-                      radius = 6;
                     } else {
-                      markerColor = Colors.yellow.withOpacity(0.5);
-                      radius = 4;
+                      // Blue for water
+                      markerColor = Colors.blue.withOpacity(0.5);
+                      radius = 5;
+                    }
+
+                    // Highlight ship-related oil spills in orange
+                    if (point.isOilCandidate && point.isShipRelated) {
+                      markerColor = Colors.orange.withOpacity(0.8);
+                      radius = 10;
                     }
 
                     return CircleMarker(
                       point: LatLng(point.latitude, point.longitude),
                       color: markerColor,
-                      borderColor: Colors.white.withOpacity(0.3),
-                      borderStrokeWidth: 1,
+                      borderColor: Colors.white.withOpacity(0.5),
+                      borderStrokeWidth: 2,
                       radius: radius,
                     );
                   }).toList(),
@@ -150,6 +173,11 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                       Text(
                         'Loading SAR Data...',
                         style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Please wait...',
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                   ),
@@ -193,14 +221,38 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     );
   }
 
+  void _findAndShowNearestSpill(LatLng tappedPoint) {
+    if (_oilSpillData.isEmpty) return;
+
+    // Find the nearest spill within a reasonable distance
+    OilSpillData? nearestSpill;
+    double minDistance = double.infinity;
+    const double maxDistanceKm = 0.5; // 500 meters
+
+    for (final spill in _oilSpillData) {
+      final spillPoint = LatLng(spill.latitude, spill.longitude);
+      final distance = const Distance().as(LengthUnit.Kilometer, tappedPoint, spillPoint);
+
+      if (distance < minDistance && distance < maxDistanceKm) {
+        minDistance = distance;
+        nearestSpill = spill;
+      }
+    }
+
+    if (nearestSpill != null) {
+      _showSpillDetails(nearestSpill);
+    }
+  }
+
   Widget _buildCompactInfoPanel() {
-    final highRiskPoints = _oilSpillData.where((p) => p.sar >= 0.7).length;
-    final mediumRiskPoints = _oilSpillData.where((p) => p.sar >= 0.4 && p.sar < 0.7).length;
-    final lowRiskPoints = _oilSpillData.where((p) => p.sar < 0.4).length;
+    final oilPoints = _oilSpillData.where((p) => p.isOilCandidate).length;
+    final waterPoints = _oilSpillData.where((p) => !p.isOilCandidate).length;
+    final shipRelated = _oilSpillData.where((p) => p.isShipRelated).length;
+    final stats = _sarDataService.getStatistics();
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -208,35 +260,57 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             Text(
               'Chesapeake Bay SAR Analysis',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Row(
               children: [
                 const Icon(Icons.circle, size: 8, color: Colors.red),
                 const SizedBox(width: 4),
-                Text('High: $highRiskPoints', style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(width: 8),
-                const Icon(Icons.circle, size: 8, color: Colors.orange),
+                Text('Oil: $oilPoints', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(width: 12),
+                const Icon(Icons.circle, size: 8, color: Colors.blue),
                 const SizedBox(width: 4),
-                Text('Med: $mediumRiskPoints', style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(width: 8),
-                const Icon(Icons.circle, size: 8, color: Colors.yellow),
-                const SizedBox(width: 4),
-                Text('Low: $lowRiskPoints', style: Theme.of(context).textTheme.bodySmall),
+                Text('Water: $waterPoints', style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
-            const SizedBox(height: 2),
+            if (shipRelated > 0) ...[
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.circle, size: 8, color: Colors.orange),
+                  const SizedBox(width: 4),
+                  Text('Ship Related: $shipRelated',
+                      style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ],
+            const SizedBox(height: 4),
             Row(
               children: [
+                const Icon(Icons.calendar_today, size: 12),
+                const SizedBox(width: 4),
+                Text(
+                  'Dates: ${stats['unique_dates']}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(width: 8),
                 const Icon(Icons.satellite, size: 12),
                 const SizedBox(width: 4),
                 Text(
-                  'Total points: ${_oilSpillData.length}',
+                  'Total: ${_oilSpillData.length}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tap a marker for details',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontStyle: FontStyle.italic,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  ),
             ),
           ],
         ),
@@ -249,27 +323,27 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         FloatingActionButton(
-          heroTag: "analyze",
+          heroTag: "filter",
           mini: true,
-          onPressed: () => _showAnalysisOptions(),
-          tooltip: 'Analyze',
+          onPressed: () => _showFilterOptions(),
+          tooltip: 'Filter Data',
+          child: const Icon(Icons.filter_list),
+        ),
+        const SizedBox(height: 8),
+        FloatingActionButton(
+          heroTag: "stats",
+          mini: true,
+          onPressed: () => _showStatistics(),
+          tooltip: 'Statistics',
           child: const Icon(Icons.analytics),
         ),
         const SizedBox(height: 8),
         FloatingActionButton(
-          heroTag: "change",
+          heroTag: "refresh",
           mini: true,
-          onPressed: () => _performAnalysis('Change Detection'),
-          tooltip: 'Change Detection',
-          child: const Icon(Icons.timeline),
-        ),
-        const SizedBox(height: 8),
-        FloatingActionButton(
-          heroTag: "interferometry",
-          mini: true,
-          onPressed: () => _performAnalysis('Interferometry'),
-          tooltip: 'Interferometry',
-          child: const Icon(Icons.speed),
+          onPressed: () => _loadSARData(),
+          tooltip: 'Refresh Data',
+          child: const Icon(Icons.refresh),
         ),
       ],
     );
@@ -291,19 +365,19 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             const ListTile(
               leading: Icon(Icons.palette),
               title: Text('Color Map'),
-              subtitle: Text('Viridis'),
+              subtitle: Text('Oil = Red, Water = Blue'),
               trailing: Icon(Icons.chevron_right),
             ),
             const ListTile(
-              leading: Icon(Icons.tune),
-              title: Text('Contrast'),
-              subtitle: Text('Auto'),
+              leading: Icon(Icons.visibility),
+              title: Text('Marker Size'),
+              subtitle: Text('Based on classification'),
               trailing: Icon(Icons.chevron_right),
             ),
             const ListTile(
               leading: Icon(Icons.grid_on),
               title: Text('Grid Overlay'),
-              trailing: Switch(value: true, onChanged: null),
+              trailing: Switch(value: false, onChanged: null),
             ),
           ],
         ),
@@ -311,7 +385,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     );
   }
 
-  void _showAnalysisOptions() {
+  void _showFilterOptions() {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -320,27 +394,48 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Analysis Tools',
+              'Filter Options',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.timeline),
-              title: const Text('Change Detection'),
-              subtitle: const Text('Compare temporal datasets'),
-              onTap: () => _performAnalysis('Change Detection'),
+              leading: const Icon(Icons.water_drop, color: Colors.red),
+              title: const Text('Show Oil Candidates Only'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _oilSpillData = _sarDataService.getOilCandidates();
+                });
+              },
             ),
             ListTile(
-              leading: const Icon(Icons.speed),
-              title: const Text('Interferometry'),
-              subtitle: const Text('Measure ground deformation'),
-              onTap: () => _performAnalysis('Interferometry'),
+              leading: const Icon(Icons.water, color: Colors.blue),
+              title: const Text('Show Water Points Only'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _oilSpillData = _sarDataService.getWaterPoints();
+                });
+              },
             ),
+            if (_sarDataService.getShipRelatedPoints().isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.directions_boat, color: Colors.orange),
+                title: const Text('Show Ship-Related Only'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _oilSpillData = _sarDataService.getShipRelatedPoints();
+                  });
+                },
+              ),
             ListTile(
-              leading: const Icon(Icons.category),
-              title: const Text('Classification'),
-              subtitle: const Text('Classify land cover types'),
-              onTap: () => _performAnalysis('Classification'),
+              leading: const Icon(Icons.refresh),
+              title: const Text('Show All Data'),
+              onTap: () {
+                Navigator.pop(context);
+                _loadSARData();
+              },
             ),
           ],
         ),
@@ -348,16 +443,70 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     );
   }
 
-  void _performAnalysis(String analysisType) {
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Starting $analysisType analysis...'),
-        behavior: SnackBarBehavior.floating,
-        action: SnackBarAction(
-          label: 'View Progress',
-          onPressed: () {},
+  void _showStatistics() {
+    final stats = _sarDataService.getStatistics();
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'SAR Data Statistics',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 20),
+            _buildStatRow(Icons.dataset, 'Total Data Points', '${stats['total']}'),
+            _buildStatRow(
+                Icons.warning, 'Oil Candidates', '${stats['oil_candidates']}'),
+            _buildStatRow(Icons.water, 'Water Points', '${stats['water_points']}'),
+            if (stats['ship_related'] > 0)
+              _buildStatRow(Icons.directions_boat, 'Ship Related',
+                  '${stats['ship_related']}'),
+            if (stats['high_risk'] > 0)
+              _buildStatRow(
+                  Icons.error, 'High Risk (Oil + Ship)', '${stats['high_risk']}'),
+            _buildStatRow(
+                Icons.calendar_today, 'Unique Dates', '${stats['unique_dates']}'),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close),
+                label: const Text('Close'),
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+          ),
+        ],
       ),
     );
   }

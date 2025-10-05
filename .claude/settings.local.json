@@ -3,7 +3,8 @@
     "allow": [
       "Bash(flutter pub:*)",
       "Bash(git pull:*)",
-      "Read(//Users/davidg/development/**)"
+      "Read(//Users/davidg/development/**)",
+      "Bash(flutter run:*)"
     ],
     "deny": [],
     "ask": []
