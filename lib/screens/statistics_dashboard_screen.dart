@@ -89,6 +89,37 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
           _buildMonthlyBreakdownChart(),
           const SizedBox(height: 24),
           _buildTrendChart(),
+          const SizedBox(height: 24),
+          // SAR Analysis Charts from Teammate's Research
+          _buildChartCard(
+            'VH vs VV Backscatter Analysis',
+            'assets/charts/VHvsVVBackscatter.webp',
+            'Scatter plot showing relationship between VH and VV polarization',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'Oil Candidate SAR Signatures',
+            'assets/charts/VHvsVVByOilCandidate.webp',
+            'VH/VV backscatter patterns distinguish oil from water',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'Backscatter Distributions',
+            'assets/charts/DistributionOfVHBackscatter&DistributionOfVVBackscatter.webp',
+            'Statistical distributions of VH and VV backscatter values',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'Feature Correlation Matrix',
+            'assets/charts/FeatureCorrelationHeatmap.webp',
+            'Correlation heatmap of SAR and environmental features',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'VH/VV Ratio Analysis',
+            'assets/charts/DistributionOfVHVVRatio&VHVVRatioByOilCandidate.webp',
+            'VH/VV ratio distribution and oil detection patterns',
+          ),
         ],
       ),
     );
@@ -510,6 +541,25 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               padding: const EdgeInsets.only(bottom: 16),
               child: _buildHotspotCard(hotspot),
             )),
+          const SizedBox(height: 24),
+          // Spatial Analysis Charts from Teammate's Research
+          _buildChartCard(
+            'Oil Detection Spatial-Temporal Map',
+            'assets/charts/OilDetectionPointsColoredByDate.webp',
+            'Geographic distribution of oil detections over time with 5km movement buffers',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'PCA Oil Candidate Behavior',
+            'assets/charts/OilCandidateBehaviorPCAProjection.webp',
+            'Principal Component Analysis reveals distinct oil vs non-oil patterns',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'Triple Correlation Analysis',
+            'assets/charts/Pearson&Spearmen&KendallCorrelation.webp',
+            'Pearson, Spearman, and Kendall correlation matrices for feature validation',
+          ),
         ],
       ),
     );
@@ -611,7 +661,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
 
   Widget _buildShipsTab() {
     final shipStats = _statistics.shipStats;
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -622,6 +672,19 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
           _buildShipTypesChart(shipStats),
           const SizedBox(height: 24),
           _buildViolationAreasCard(shipStats),
+          const SizedBox(height: 24),
+          // Environmental Correlation Charts from Teammate's Research
+          _buildChartCard(
+            'Wind Speed vs VH/VV Ratio',
+            'assets/charts/WindSpeedvsVHVVRatioOilCandidateHighlight.webp',
+            'Wind speed correlation with SAR signatures - oil candidates highlighted',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'VH/VV Ratio Temporal Patterns',
+            'assets/charts/VHVVRatioByWeekdayOilvsNon-Oil.webp',
+            'Weekday patterns reveal oil vs non-oil detection differences',
+          ),
         ],
       ),
     );
@@ -821,7 +884,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
 
   Widget _buildWeatherTab() {
     final weatherStats = _statistics.weatherStats;
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -830,6 +893,43 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
           _buildWeatherCorrelationCard(weatherStats),
           const SizedBox(height: 24),
           _buildWeatherPatternsCard(weatherStats),
+          const SizedBox(height: 24),
+          // Analysis Charts from Teammate's Research
+          _buildChartCard(
+            'Weather Clustering Analysis',
+            'assets/charts/ClusteredWeatherPatternsTempvsPrecip.webp',
+            'K-means clustering reveals three distinct weather regimes in Chesapeake Bay',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'Daily SAR & Wind Speed Trends',
+            'assets/charts/DailyMeanSAR&WindSpeed.webp',
+            'Temporal analysis of SAR backscatter and environmental conditions',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'Environmental Factors vs Oil Presence',
+            'assets/charts/NASAPowerAirTemp2mvsOilPresence.webp',
+            'Temperature correlation with oil detections',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'Precipitation Impact',
+            'assets/charts/NASAPowerPrecipiationMMvsOilPresence.webp',
+            'Precipitation patterns affect SAR detection reliability',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'Wind Speed Analysis',
+            'assets/charts/NASAPowerWindSpeed2mmpersvsOilPresence.webp',
+            'Wind speed correlation with surface roughness',
+          ),
+          const SizedBox(height: 16),
+          _buildChartCard(
+            'Solar Radiation Effects',
+            'assets/charts/NASAPowerSolarRadiationMJm2dayvsOilPresence.webp',
+            'Solar radiation impact on oil detection conditions',
+          ),
         ],
       ),
     );
@@ -995,6 +1095,58 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                 ),
               ),
             )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChartCard(String title, String assetPath, String description) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              description,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                assetPath,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    color: Colors.grey[200],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.grey[600]),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Chart not available',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
