@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart';
 import '../models/story_models.dart';
 import '../services/sar_data_service.dart';
 import 'dart:math' as math;
@@ -297,24 +298,37 @@ class _BeforeAfterSliderState extends State<BeforeAfterSlider>
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 12),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: const Color(0xFF8B5CF6),
-            inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
-            thumbColor: Colors.white,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-            overlayColor: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
-            trackHeight: 6,
-          ),
-          child: Slider(
-            value: _sliderValue,
-            onChanged: _handleSliderChange,
-            onChangeStart: (_) {
-              HapticFeedback.lightImpact();
-            },
-            onChangeEnd: (_) {
-              HapticFeedback.mediumImpact();
-            },
+        // Completely isolate slider from PageView gestures
+        RawGestureDetector(
+          gestures: <Type, GestureRecognizerFactory>{
+            HorizontalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
+              () => HorizontalDragGestureRecognizer(),
+              (HorizontalDragGestureRecognizer instance) {
+                instance.onStart = (_) {};
+                instance.onUpdate = (_) {};
+                instance.onEnd = (_) {};
+              },
+            ),
+          },
+          child: SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: const Color(0xFF8B5CF6),
+              inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
+              thumbColor: Colors.white,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
+              overlayColor: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+              trackHeight: 6,
+            ),
+            child: Slider(
+              value: _sliderValue,
+              onChanged: _handleSliderChange,
+              onChangeStart: (_) {
+                HapticFeedback.lightImpact();
+              },
+              onChangeEnd: (_) {
+                HapticFeedback.mediumImpact();
+              },
+            ),
           ),
         ),
       ],
