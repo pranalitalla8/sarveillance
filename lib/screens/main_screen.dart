@@ -57,6 +57,8 @@ class _MainScreenState extends State<MainScreen> {
             });
           },
           type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.blue[400],
+          unselectedItemColor: Colors.grey[600],
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.auto_stories),

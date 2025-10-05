@@ -294,7 +294,7 @@ Urban Planning:
                                 Text(
                                   content['subtitle'],
                                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                                   ),
                                 ),
                               ],

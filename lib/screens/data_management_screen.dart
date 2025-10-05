@@ -235,31 +235,34 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
                             style: TextStyle(color: Colors.grey),
                           ),
                           const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: _downloadAllDataSources,
-                                  icon: const Icon(Icons.download),
-                                  label: const Text('Download All'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: _downloadAllDataSources,
+                              icon: const Icon(Icons.download),
+                              label: const Text('Download All'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () {
-                                    // TODO: Implement Earth Engine setup guide
-                                    _showEarthEngineSetupDialog();
-                                  },
-                                  icon: const Icon(Icons.cloud),
-                                  label: const Text('Setup Guide'),
-                                ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                // TODO: Implement Earth Engine setup guide
+                                _showEarthEngineSetupDialog();
+                              },
+                              icon: Icon(Icons.cloud, color: Theme.of(context).colorScheme.onSurface),
+                              label: Text('Setup Guide', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
                               ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
@@ -306,8 +309,11 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
                                     // TODO: Open Earth Engine script
                                     _showEarthEngineScriptDialog();
                                   },
-                                  icon: const Icon(Icons.code),
-                                  label: const Text('View'),
+                                  icon: Icon(Icons.code, color: Theme.of(context).colorScheme.onSurface),
+                                  label: Text('View', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                                  style: OutlinedButton.styleFrom(
+                                    side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -317,8 +323,11 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
                                     // TODO: Copy script to clipboard
                                     _copyScriptToClipboard();
                                   },
-                                  icon: const Icon(Icons.copy),
-                                  label: const Text('Copy'),
+                                  icon: Icon(Icons.copy, color: Theme.of(context).colorScheme.onSurface),
+                                  label: Text('Copy', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                                  style: OutlinedButton.styleFrom(
+                                    side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                                  ),
                                 ),
                               ),
                             ],
