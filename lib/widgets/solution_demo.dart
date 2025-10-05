@@ -249,7 +249,7 @@ class _SolutionDemoState extends State<SolutionDemo>
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 140,
+          height: 200, // Increased from 140 to 200 for better visibility
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: technologies.length,
@@ -681,11 +681,15 @@ class _SolutionDemoState extends State<SolutionDemo>
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    'Timeline: ${solution.timeline}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF10B981),
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Text(
+                      'Timeline: ${solution.timeline}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: const Color(0xFF10B981),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.visible,
                     ),
                   ),
                 ],

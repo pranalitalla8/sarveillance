@@ -129,10 +129,6 @@ class _InteractiveTimelineState extends State<InteractiveTimeline>
         Expanded(
           child: _buildTimelineContent(),
         ),
-        if (_selectedEvent != null) ...[
-          const SizedBox(height: 16),
-          _buildEventDetail(),
-        ],
       ],
     );
   }
@@ -386,25 +382,113 @@ class _InteractiveTimelineState extends State<InteractiveTimeline>
     );
   }
 
-  Widget _buildEventDetail() {
-    final event = _events.firstWhere((e) => e.id == _selectedEvent!);
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      padding: const EdgeInsets.all(24),
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      constraints: const BoxConstraints(minHeight: 200),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: [
-            _getEventColor(event.type).withValues(alpha: 0.3),
-            Colors.black.withValues(alpha: 0.7),
+  Widget _buildEventDetailDialog(TimelineEvent event) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.7,
+        ),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              _getEventColor(event.type).withValues(alpha: 0.9),
+              Colors.black.withValues(alpha: 1.0),
+            ],
+          ),
+          border: Border.all(
+            color: _getEventColor(event.type),
+            width: 3,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _getEventColor(event.type).withValues(alpha: 0.5),
+              blurRadius: 30,
+              spreadRadius: 5,
+            ),
           ],
         ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    _getEventIcon(event.type),
+                    color: _getEventColor(event.type),
+                    size: 32,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      event.title,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.of(context).pop();
+                    },
+                    icon: const Icon(Icons.close, color: Colors.white),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: _getEventColor(event.type).withValues(alpha: 0.3),
+                ),
+                child: Text(
+                  'Year ${event.year}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                event.description,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.95),
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildDetailSection('Environmental Impact', event.impact, event.type),
+              const SizedBox(height: 16),
+              _buildDetailSection('SAR Signature', event.sarSignature, event.type),
+              const SizedBox(height: 20),
+              _buildAliceQuote(event.aliceReference),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailSection(String label, String value, TimelineEventType type) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white.withValues(alpha: 0.1),
         border: Border.all(
-          color: _getEventColor(event.type),
-          width: 2,
+          color: _getEventColor(type).withValues(alpha: 0.3),
+          width: 1,
         ),
       ),
       child: Column(
@@ -413,34 +497,26 @@ class _InteractiveTimelineState extends State<InteractiveTimeline>
           Row(
             children: [
               Icon(
-                _getEventIcon(event.type),
-                color: _getEventColor(event.type),
-                size: 24,
+                label.contains('Impact') ? Icons.eco : Icons.satellite,
+                color: _getEventColor(type),
+                size: 20,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  event.title,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: _getEventColor(type),
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          _buildDetailRow('Impact', event.impact),
           const SizedBox(height: 8),
-          _buildDetailRow('SAR Signature', event.sarSignature),
-          const SizedBox(height: 12),
-          ElevatedButton.icon(
-            onPressed: () => setState(() => _selectedEvent = null),
-            icon: const Icon(Icons.close),
-            label: const Text('Close'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _getEventColor(event.type),
-              foregroundColor: Colors.white,
+          Text(
+            value,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.white.withValues(alpha: 0.9),
+              height: 1.4,
             ),
           ),
         ],
@@ -448,32 +524,22 @@ class _InteractiveTimelineState extends State<InteractiveTimeline>
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return RichText(
-      text: TextSpan(
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: Colors.white.withValues(alpha: 0.9),
-        ),
-        children: [
-          TextSpan(
-            text: '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          TextSpan(text: value),
-        ],
-      ),
-    );
-  }
 
   void _handleEventTap(TimelineEvent event) {
     HapticFeedback.mediumImpact();
 
     setState(() {
       _revealedEvents.add(event.id);
-      _selectedEvent = _selectedEvent == event.id ? null : event.id;
+      _selectedEvent = event.id;
     });
 
     widget.onImpactTap(event.id);
+
+    // Show the event detail in a dialog
+    showDialog(
+      context: context,
+      builder: (context) => _buildEventDetailDialog(event),
+    );
   }
 
   Color _getEventColor(TimelineEventType type) {
