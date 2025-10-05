@@ -6,6 +6,7 @@ import '../widgets/measurement_tools.dart';
 import '../widgets/spill_detail_popup.dart';
 import '../services/sar_data_service.dart';
 import '../models/oil_spill_data.dart';
+import 'data_management_screen.dart';
 
 class AnalyzeScreen extends StatefulWidget {
   const AnalyzeScreen({super.key});
@@ -103,9 +104,16 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             tooltip: 'Measurement Tools',
           ),
           IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => _showSettings(),
-            tooltip: 'Settings',
+            icon: const Icon(Icons.storage),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DataManagementScreen(),
+                ),
+              );
+            },
+            tooltip: 'Data Sources',
           ),
         ],
       ),
@@ -116,6 +124,19 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             options: MapOptions(
               initialCenter: const LatLng(37.8, -76.1), // Chesapeake Bay
               initialZoom: 9.0,
+              minZoom: 2.0,
+              maxZoom: 18.0,
+              // Lock rotation and tilt
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
+              // Constrain panning to world bounds
+              cameraConstraint: CameraConstraint.contain(
+                bounds: LatLngBounds(
+                  const LatLng(-90, -180),
+                  const LatLng(90, 180),
+                ),
+              ),
               onTap: (tapPosition, point) {
                 // Find nearest marker when map is tapped
                 _findAndShowNearestSpill(point);
@@ -349,41 +370,6 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     );
   }
 
-  void _showSettings() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Analysis Settings',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            const ListTile(
-              leading: Icon(Icons.palette),
-              title: Text('Color Map'),
-              subtitle: Text('Oil = Red, Water = Blue'),
-              trailing: Icon(Icons.chevron_right),
-            ),
-            const ListTile(
-              leading: Icon(Icons.visibility),
-              title: Text('Marker Size'),
-              subtitle: Text('Based on classification'),
-              trailing: Icon(Icons.chevron_right),
-            ),
-            const ListTile(
-              leading: Icon(Icons.grid_on),
-              title: Text('Grid Overlay'),
-              trailing: Switch(value: false, onChanged: null),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _showFilterOptions() {
     showModalBottomSheet(
