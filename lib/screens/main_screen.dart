@@ -17,7 +17,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const StoryScreen(),
     const ExploreScreen(),
-    const AnalyzeScreen(),
+    const AnalyzeScreenGoogle(),
     const DiscoverScreen(),
   ];
 
