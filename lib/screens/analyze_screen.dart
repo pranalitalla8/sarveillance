@@ -152,16 +152,11 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             tooltip: 'Measurement Tools',
           ),
           IconButton(
-<<<<<<< HEAD
             icon: const Icon(Icons.show_chart),
             onPressed: () => _navigateToTimeSeries(),
             tooltip: 'Time Series Analysis',
           ),
           IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => _showSettings(),
-            tooltip: 'Settings',
-=======
             icon: const Icon(Icons.storage),
             onPressed: () {
               Navigator.push(
@@ -172,7 +167,6 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
               );
             },
             tooltip: 'Data Sources',
->>>>>>> 76acc4515e4bc48a263cd353a80771c54c408d91
           ),
         ],
       ),
@@ -444,11 +438,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     );
   }
 
-  void _showSettings() {
-=======
-
   void _showFilterOptions() {
->>>>>>> 76acc4515e4bc48a263cd353a80771c54c408d91
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -542,6 +532,42 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                 icon: const Icon(Icons.close),
                 label: const Text('Close'),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSettings() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Analysis Settings',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            const ListTile(
+              leading: Icon(Icons.palette),
+              title: Text('Color Map'),
+              subtitle: Text('Viridis'),
+              trailing: Icon(Icons.chevron_right),
+            ),
+            const ListTile(
+              leading: Icon(Icons.tune),
+              title: Text('Contrast'),
+              subtitle: Text('Auto'),
+              trailing: Icon(Icons.chevron_right),
+            ),
+            const ListTile(
+              leading: Icon(Icons.grid_on),
+              title: Text('Grid Overlay'),
+              trailing: Switch(value: true, onChanged: null),
             ),
           ],
         ),
