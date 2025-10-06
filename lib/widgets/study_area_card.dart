@@ -25,39 +25,107 @@ class StudyAreaCard extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      _getCategoryColor(studyArea.category),
-                      _getCategoryColor(studyArea.category).withValues(alpha: 0.7),
-                    ],
-                  ),
+                  color: _getCategoryColor(studyArea.category),
                 ),
                 child: Stack(
                   children: [
+                    // Background image
                     Positioned.fill(
-                      child: Icon(
-                        _getCategoryIcon(studyArea.category),
-                        size: 48,
-                        color: Colors.white.withValues(alpha: 0.3),
+                      child: _getCategoryImageUrl(studyArea.category).isNotEmpty
+                          ? Image.network(
+                              _getCategoryImageUrl(studyArea.category),
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  color: _getCategoryColor(studyArea.category),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                          : null,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        _getCategoryColor(studyArea.category),
+                                        _getCategoryColor(studyArea.category).withValues(alpha: 0.7),
+                                      ],
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      _getCategoryIcon(studyArea.category),
+                                      size: 48,
+                                      color: Colors.white.withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    _getCategoryColor(studyArea.category),
+                                    _getCategoryColor(studyArea.category).withValues(alpha: 0.7),
+                                  ],
+                                ),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  _getCategoryIcon(studyArea.category),
+                                  size: 48,
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                ),
+                              ),
+                            ),
+                    ),
+                    // Gradient overlay for better text visibility
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black.withValues(alpha: 0.3),
+                              Colors.black.withValues(alpha: 0.5),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
+                    // Category badge
                     Positioned(
                       top: 8,
                       right: 8,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.6),
+                          color: _getCategoryColor(studyArea.category),
                           borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            width: 1,
+                          ),
                         ),
                         child: Text(
                           studyArea.category,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -88,7 +156,7 @@ class StudyAreaCard extends StatelessWidget {
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w500,
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const Spacer(),
@@ -122,8 +190,39 @@ class StudyAreaCard extends StatelessWidget {
     );
   }
 
+  String _getCategoryImageUrl(String category) {
+    switch (category.toLowerCase()) {
+      case 'oil spills':
+        return 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&q=80'; // Ocean water
+      case 'ship traffic':
+        return 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=800&q=80'; // Cargo ship
+      case 'high-risk zone':
+        return 'https://images.unsplash.com/photo-1605731414355-485f5e5c6d4f?w=800&q=80'; // Industrial port
+      case 'environmental':
+        return 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80'; // Nature/landscape
+      case 'temporal analysis':
+        return 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80'; // Earth from space
+      case 'machine learning':
+        return 'https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=800&q=80'; // Code/tech
+      default:
+        return '';
+    }
+  }
+
   Color _getCategoryColor(String category) {
     switch (category.toLowerCase()) {
+      case 'oil spills':
+        return const Color(0xFF8B4513); // Brown for oil
+      case 'ship traffic':
+        return const Color(0xFF1E40AF); // Navy blue for ships
+      case 'high-risk zone':
+        return const Color(0xFFDC2626); // Red for high risk
+      case 'environmental':
+        return const Color(0xFF059669); // Green for environment
+      case 'temporal analysis':
+        return const Color(0xFF7C3AED); // Purple for data/analysis
+      case 'machine learning':
+        return const Color(0xFFEF4444); // Bright red for ML
       case 'disasters':
         return const Color(0xFFDC2626);
       case 'climate':
@@ -139,6 +238,18 @@ class StudyAreaCard extends StatelessWidget {
 
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
+      case 'oil spills':
+        return Icons.water_drop;
+      case 'ship traffic':
+        return Icons.directions_boat;
+      case 'high-risk zone':
+        return Icons.warning;
+      case 'environmental':
+        return Icons.eco;
+      case 'temporal analysis':
+        return Icons.show_chart;
+      case 'machine learning':
+        return Icons.psychology;
       case 'disasters':
         return Icons.warning;
       case 'climate':
