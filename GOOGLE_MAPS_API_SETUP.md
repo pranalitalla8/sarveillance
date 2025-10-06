@@ -41,10 +41,10 @@ Even though your API key is in a public repository for NASA Space Apps judging, 
 
 ### What This Means:
 
-✅ **Key can be public** - It won't work outside your app
-✅ **Judges can use it** - It works when they run your Flutter app
-✅ **Limited abuse potential** - Restricted to Maps SDK only
-✅ **Cost protection** - Usage quotas prevent surprise bills
+**Key can be public** - It won't work outside your app
+**Judges can use it** - It works when they run your Flutter app
+**Limited abuse potential** - Restricted to Maps SDK only
+**Cost protection** - Usage quotas prevent surprise bills
 
 ### Current Status:
 

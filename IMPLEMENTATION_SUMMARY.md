@@ -1,6 +1,6 @@
 # NASA SAR App - Data Sources Implementation Summary
 
-## ✅ Completed Tasks
+## Completed Tasks
 
 ### 1. Google Earth Engine Script
 - **File**: `earth_engine_scripts/sentinel1_chesapeake_bay.js`
@@ -38,7 +38,7 @@
   - `file_picker: ^6.1.1` - File selection
   - `path: ^1.8.3` - Path utilities
 
-## 📋 Remaining Tasks
+## Remaining Tasks
 
 ### Manual Setup Required
 1. **Google Earth Engine Account**
@@ -56,7 +56,7 @@
    - Run script to collect SAR data
    - Monitor exports in Tasks tab
 
-## 🚀 How to Use
+## How to Use
 
 ### Option 1: Flutter App
 1. Open the NASA SAR app
@@ -75,7 +75,7 @@
 3. Set up Google Earth Engine account
 4. Run the Earth Engine script
 
-## 📁 File Structure Created
+## File Structure Created
 
 ```
 nasa-sar-app/
@@ -95,7 +95,7 @@ nasa-sar-app/
 └── pubspec.yaml (updated)
 ```
 
-## 🔧 Technical Features
+## Technical Features
 
 ### Data Models
 - `ChesapeakeBayData` - Watershed boundary data
@@ -117,7 +117,7 @@ nasa-sar-app/
 - Earth Engine setup guidance
 - Script viewing and copying
 
-## 📊 Data Sources Summary
+## Data Sources Summary
 
 | Source | Type | Format | Size | Purpose |
 |--------|------|--------|------|---------|
@@ -128,7 +128,7 @@ nasa-sar-app/
 | Zenodo Oil Spill | Dataset | TIFF | 1,200 images | Training data |
 | M4D Oil Spill | Dataset | GeoTIFF | 1,100 images | Research data |
 
-## 🎯 Next Steps
+## Next Steps
 
 1. **Complete Manual Setup**:
    - Set up Google Earth Engine account
@@ -145,7 +145,7 @@ nasa-sar-app/
    - Implement analysis tools
    - Create export functionality
 
-## 📞 Support
+## Support
 
 - Check `DATA_SOURCES_SETUP.md` for detailed instructions
 - Use the app's data management screen for status monitoring
