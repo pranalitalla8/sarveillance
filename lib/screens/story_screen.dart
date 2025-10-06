@@ -19,6 +19,7 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
 
   int _currentChapter = 0;
   bool _isTransitioning = false;
+  int? _expectedNextPage; // Track the expected next page from button navigation
 
   StoryProgress _progress = const StoryProgress();
 
@@ -81,24 +82,30 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
   }
 
   Widget _buildStoryContent() {
-    return PageView.builder(
-      controller: _pageController,
-      onPageChanged: _onPageChanged,
-      itemCount: StoryData.chapters.length,
-      physics: const NeverScrollableScrollPhysics(), // Disable swiping
-      itemBuilder: (context, index) {
-        final chapter = StoryData.chapters[index];
-        return SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: StoryChapterWidget(
-            chapter: chapter,
-            isActive: index == _currentChapter,
-            progress: _progress,
-            onInteraction: _onChapterInteraction,
-            onComplete: () => _onChapterComplete(chapter.id),
-          ),
-        );
-      },
+    return GestureDetector(
+      // Absorb all horizontal drag gestures to prevent accidental page changes
+      onHorizontalDragStart: (_) {},
+      onHorizontalDragUpdate: (_) {},
+      onHorizontalDragEnd: (_) {},
+      child: PageView.builder(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        itemCount: StoryData.chapters.length,
+        physics: const NeverScrollableScrollPhysics(), // Disable swiping
+        itemBuilder: (context, index) {
+          final chapter = StoryData.chapters[index];
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: StoryChapterWidget(
+              chapter: chapter,
+              isActive: index == _currentChapter,
+              progress: _progress,
+              onInteraction: _onChapterInteraction,
+              onComplete: () => _onChapterComplete(chapter.id),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -341,10 +348,28 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
   }
 
   void _onPageChanged(int index) {
-    if (_isTransitioning) return;
+    // Only allow page changes to the expected page set by navigation buttons
+    if (_expectedNextPage != index) {
+      print('DEBUG: Blocked unauthorized page change from $_currentChapter to $index (expected: $_expectedNextPage)');
+      // Force the page back to current chapter
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_pageController.hasClients && _pageController.page != _currentChapter.toDouble()) {
+          _pageController.jumpToPage(_currentChapter);
+        }
+      });
+      return;
+    }
+
+    if (_isTransitioning) {
+      _expectedNextPage = null; // Clear expected page
+      return;
+    }
+
+    print('DEBUG: Authorized page change from $_currentChapter to $index');
 
     setState(() {
       _currentChapter = index;
+      _expectedNextPage = null; // Clear expected page after successful navigation
     });
 
     _triggerHapticFeedback();
@@ -437,16 +462,14 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
 
     _triggerHapticFeedback();
 
-    // Auto-advance after a short delay
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (_currentChapter < StoryData.chapters.length - 1) {
-        _goToNext();
-      }
-    });
+    // Auto-advance removed - user must manually navigate with buttons
   }
 
   void _goToNext() {
     if (_currentChapter < StoryData.chapters.length - 1) {
+      final nextPage = _currentChapter + 1;
+      print('DEBUG: Next button pressed - expecting page change to $nextPage');
+      _expectedNextPage = nextPage; // Set the expected page BEFORE navigation
       _pageController.nextPage(
         duration: const Duration(milliseconds: 600),
         curve: Curves.easeInOutCubic,
@@ -456,6 +479,9 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
 
   void _goToPrevious() {
     if (_currentChapter > 0) {
+      final prevPage = _currentChapter - 1;
+      print('DEBUG: Previous button pressed - expecting page change to $prevPage');
+      _expectedNextPage = prevPage; // Set the expected page BEFORE navigation
       _pageController.previousPage(
         duration: const Duration(milliseconds: 600),
         curve: Curves.easeInOutCubic,
