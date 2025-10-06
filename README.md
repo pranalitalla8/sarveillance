@@ -1,6 +1,6 @@
 # SARveillance - Oil Spill Detection for Chesapeake Bay
 
-A Flutter mobile application for detecting and monitoring oil spills in the Chesapeake Bay using Synthetic Aperture Radar (SAR) satellite imagery from Sentinel-1, built for the NASA Space Apps Challenge 2024.
+A Flutter mobile application for detecting and monitoring oil spills in the Chesapeake Bay using Synthetic Aperture Radar (SAR) satellite imagery from Sentinel-1, built for the NASA Space Apps Challenge 2025.
 
 ## Overview
 
@@ -269,7 +269,7 @@ This project utilized AI coding assistants (Claude via Cursor IDE) for approxima
 
 ## Contributing
 
-Created for NASA Space Apps Challenge 2024. For contributions or questions:
+Created for NASA Space Apps Challenge 2025. For contributions or questions:
 1. Fork the repository
 2. Create a feature branch
 3. Submit a pull request with detailed description
@@ -319,7 +319,7 @@ All Unsplash photos are free to use for commercial and non-commercial purposes w
 
 ## License
 
-Created for NASA Space Apps Challenge 2024.
+Created for NASA Space Apps Challenge 2025.
 
 ## Acknowledgments
 
@@ -332,4 +332,4 @@ Created for NASA Space Apps Challenge 2024.
 
 ## Contact
 
-Project created for NASA Space Apps Challenge 2024 - Chesapeake Bay Oil Spill Detection
+Project created for NASA Space Apps Challenge 2025 - Chesapeake Bay Oil Spill Detection
