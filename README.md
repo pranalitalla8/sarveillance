@@ -271,6 +271,49 @@ Created for NASA Space Apps Challenge 2024. For contributions or questions:
 2. Create a feature branch
 3. Submit a pull request with detailed description
 
+## Image Sources & Attribution
+
+### Explore Page Study Area Cards
+All images used on the Explore page study area cards are sourced from **Unsplash** under the Unsplash License:
+
+- **Oil Spills Category**: Ocean/water images
+  - Source: [Unsplash](https://unsplash.com)
+  - Photographers: Various Unsplash contributors
+  - URLs: `https://images.unsplash.com/photo-1530587191325-3db32d826c18`
+
+- **Ship Traffic Category**: Maritime/cargo ship images
+  - Source: [Unsplash](https://unsplash.com)
+  - Photographers: Various Unsplash contributors
+  - URLs: `https://images.unsplash.com/photo-1464037866556-6812c9d1c72e`
+
+- **High-Risk Zone Category**: Industrial port/harbor images
+  - Source: [Unsplash](https://unsplash.com)
+  - Photographers: Various Unsplash contributors
+  - URLs: `https://images.unsplash.com/photo-1605731414355-485f5e5c6d4f`
+
+- **Environmental Category**: Nature/coastal landscape images
+  - Source: [Unsplash](https://unsplash.com)
+  - Photographers: Various Unsplash contributors
+  - URLs: `https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05`
+
+- **Temporal Analysis Category**: Earth from space/satellite images
+  - Source: [Unsplash](https://unsplash.com)
+  - Photographers: Various Unsplash contributors
+  - URLs: `https://images.unsplash.com/photo-1451187580459-43490279c0fa`
+
+- **Machine Learning Category**: Technology/AI visualization images
+  - Source: [Unsplash](https://unsplash.com)
+  - Photographers: Various Unsplash contributors
+  - URLs: `https://images.unsplash.com/photo-1535378917042-10a22c95931a`
+
+### Unsplash License
+All Unsplash photos are free to use for commercial and non-commercial purposes with no permission needed. Attribution is appreciated but not required. Learn more at [Unsplash License](https://unsplash.com/license).
+
+### Other Visual Assets
+- **App Icons & UI Elements**: Custom-designed Flutter Material 3 icons and widgets
+- **Statistical Charts**: Generated from SAR analysis data stored in `assets/charts/`
+- **NASA Branding**: No NASA logos, flags, or mission identifiers are used in this project per NASA Space Apps Challenge guidelines
+
 ## License
 
 Created for NASA Space Apps Challenge 2024.
