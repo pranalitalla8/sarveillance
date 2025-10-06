@@ -1173,6 +1173,27 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
             'assets/charts/additional-charts/3DVisualizationOfOilSpillPersistenceOverTime.webp',
             'Three-dimensional visualization revealing long-term pollution hotspots with maximum persistence of 45 days',
           ),
+          const SizedBox(height: 16),
+
+          _buildChartCard(
+            'Oil Candidate Cluster Distribution',
+            'assets/charts/additional-charts-2/OilCandidateDistributionAcrossClusters.webp',
+            'K-means clustering reveals spatial patterns in oil detections across different environmental conditions',
+          ),
+          const SizedBox(height: 16),
+
+          _buildChartCard(
+            'VV Backscatter vs Ship Presence',
+            'assets/charts/additional-charts-2/VVDistributionvsShipPresence.webp',
+            'Statistical analysis comparing VV polarization signatures between ship-related and non-ship oil detections',
+          ),
+          const SizedBox(height: 16),
+
+          _buildChartCard(
+            'VV vs Wind Speed Analysis',
+            'assets/charts/additional-charts-2/VVvsWindSpeedSuspiciousPointsHighlighted.webp',
+            'Correlation between SAR backscatter and wind conditions with suspicious anomalies highlighted for further investigation',
+          ),
         ],
       ),
     );

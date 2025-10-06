@@ -11,7 +11,8 @@
       "Bash(gcloud projects:*)",
       "Bash(curl:*)",
       "Bash(awk:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/splash_screen.dart';
 import 'screens/main_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -12,10 +13,14 @@ class NasaSarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'NASA SAR Visualization',
+      title: 'SARveillance',
       theme: AppTheme.darkTheme,
-      home: const MainScreen(),
       debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/main': (context) => const MainScreen(),
+      },
     );
   }
 }
