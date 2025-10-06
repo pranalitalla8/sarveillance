@@ -249,7 +249,7 @@ final solution = widget.solution!;
         ),
         const SizedBox(height: 12), // Reduced from 16
         SizedBox(
-          height: 380, // Larger viewport since cards are now more compact
+          height: 120, // Much shorter viewport to match compact card height
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: technologies.length,
@@ -555,8 +555,8 @@ final solution = widget.solution!;
     final categoryColor = _getCategoryColor(impact.category);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: categoryColor.withValues(alpha: 0.2),
@@ -573,21 +573,22 @@ final solution = widget.solution!;
               Icon(
                 _getCategoryIcon(impact.category),
                 color: categoryColor,
-                size: 20,
+                size: 18,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Text(
                 impact.category.toUpperCase(),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: categoryColor,
                   fontWeight: FontWeight.bold,
+                  fontSize: 11,
                 ),
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                   color: _getMagnitudeColor(impact.magnitude).withValues(alpha: 0.3),
                 ),
                 child: Text(
@@ -595,36 +596,39 @@ final solution = widget.solution!;
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: _getMagnitudeColor(impact.magnitude),
                     fontWeight: FontWeight.bold,
-                    fontSize: 10,
+                    fontSize: 9,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             impact.description,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Colors.white.withValues(alpha: 0.9),
-              height: 1.4,
+              height: 1.3,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           if (impact.beneficiaries.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Wrap(
-              spacing: 6,
-              children: impact.beneficiaries.map((beneficiary) {
+              spacing: 4,
+              runSpacing: 4,
+              children: impact.beneficiaries.take(3).map((beneficiary) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                     color: categoryColor.withValues(alpha: 0.3),
                   ),
                   child: Text(
                     beneficiary,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.white,
-                      fontSize: 10,
+                      fontSize: 9,
                     ),
                   ),
                 );
@@ -647,11 +651,11 @@ final solution = widget.solution!;
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             gradient: LinearGradient(
               colors: [
                 const Color(0xFF10B981).withValues(alpha: 0.3),
@@ -668,34 +672,36 @@ final solution = widget.solution!;
             children: [
               Text(
                 solution.implementation,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.white.withValues(alpha: 0.9),
-                  height: 1.4,
+                  height: 1.3,
                 ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Icon(
                     Icons.schedule,
                     color: const Color(0xFF10B981),
-                    size: 20,
+                    size: 16,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'Timeline: ${solution.timeline}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: const Color(0xFF10B981),
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,
-                      overflow: TextOverflow.visible,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               _buildDeploymentButton(),
             ],
           ),
@@ -731,9 +737,9 @@ final solution = widget.solution!;
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF10B981),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
           ),

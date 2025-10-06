@@ -359,7 +359,7 @@ class _AnalyzeScreenGoogleState extends State<AnalyzeScreenGoogle> {
           // Chesapeake Bay SAR Analysis Card
           if (!_isLoading)
             Positioned(
-              left: 16,
+              left: 8,
               bottom: 16,
               child: Card(
                 color: Colors.black.withValues(alpha: 0.85),

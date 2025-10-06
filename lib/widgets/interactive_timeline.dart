@@ -196,14 +196,17 @@ class _InteractiveTimelineState extends State<InteractiveTimeline>
   Widget _buildTimelineEvent(TimelineEvent event, int index) {
     final isRevealed = _revealedEvents.contains(event.id);
     final isSelected = _selectedEvent == event.id;
-    final animationDelay = index * 0.2;
+    final animationDelay = index * 0.1;
 
     return AnimatedBuilder(
       animation: _timelineController,
       builder: (context, child) {
-        final slideValue = math.max(0.0, (_timelineController.value - animationDelay) / 0.8);
+        // Calculate animation value that properly clamps between 0 and 1
+        final rawValue = (_timelineController.value - animationDelay) / (1.0 - animationDelay);
+        final slideValue = math.max(0.0, math.min(1.0, rawValue));
         final opacity = math.min(1.0, slideValue * 2);
-        final slideOffset = (1 - slideValue) * 100;
+        // When slideValue reaches 1.0, slideOffset will be 0, ensuring alignment
+        final slideOffset = (1.0 - slideValue) * 100.0;
 
         return Transform.translate(
           offset: Offset(slideOffset, 0),
