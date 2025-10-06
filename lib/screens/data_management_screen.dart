@@ -301,36 +301,13 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
                             'Use the provided Earth Engine script to collect 10 years of Sentinel-1 SAR data for Chesapeake Bay region.',
                           ),
                           const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () {
-                                    // TODO: Open Earth Engine script
-                                    _showEarthEngineScriptDialog();
-                                  },
-                                  icon: Icon(Icons.code, color: Theme.of(context).colorScheme.onSurface),
-                                  label: Text('View', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                                  style: OutlinedButton.styleFrom(
-                                    side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () {
-                                    // TODO: Copy script to clipboard
-                                    _copyScriptToClipboard();
-                                  },
-                                  icon: Icon(Icons.copy, color: Theme.of(context).colorScheme.onSurface),
-                                  label: Text('Copy', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                                  style: OutlinedButton.styleFrom(
-                                    side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          OutlinedButton.icon(
+                            onPressed: _showEarthEngineScriptDialog,
+                            icon: Icon(Icons.code, color: Theme.of(context).colorScheme.onSurface),
+                            label: Text('View Script', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                            ),
                           ),
                         ],
                       ),
@@ -366,12 +343,12 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
               children: [
                 Chip(
                   label: Text(source.format),
-                  backgroundColor: Colors.blue.withOpacity(0.2),
+                  backgroundColor: Colors.blue.withValues(alpha: 0.2),
                 ),
                 const SizedBox(height: 4),
                 Chip(
                   label: Text(source.source),
-                  backgroundColor: Colors.green.withOpacity(0.2),
+                  backgroundColor: Colors.green.withValues(alpha: 0.2),
                 ),
               ],
             ),
@@ -446,13 +423,4 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
     );
   }
 
-  void _copyScriptToClipboard() {
-    // TODO: Implement clipboard functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Script copied to clipboard'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
 }

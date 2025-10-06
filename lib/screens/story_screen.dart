@@ -121,7 +121,7 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
             colors: [
-              Colors.black.withOpacity(0.8),
+              Colors.black.withValues(alpha: 0.8),
               Colors.transparent,
             ],
           ),
@@ -163,10 +163,10 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withValues(alpha: 0.3),
             width: 1,
           ),
-          color: Colors.black.withOpacity(0.6),
+          color: Colors.black.withValues(alpha: 0.6),
         ),
         child: Material(
           color: Colors.transparent,
@@ -208,9 +208,9 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         border: Border.all(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -236,7 +236,7 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
           height: 4,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(2),
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withValues(alpha: 0.3),
           ),
           child: FractionallySizedBox(
             alignment: Alignment.centerLeft,
@@ -264,8 +264,8 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
       animation: _chapterTransitionController,
       builder: (context, child) {
         return Container(
-          color: Colors.black.withOpacity(
-            0.8 * (1 - _chapterTransitionController.value),
+          color: Colors.black.withValues(
+            alpha: 0.8 * (1 - _chapterTransitionController.value),
           ),
           child: Center(
             child: Transform.scale(
@@ -295,7 +295,7 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.purple.withOpacity(0.3),
+            color: Colors.purple.withValues(alpha: 0.3),
             blurRadius: 20,
             spreadRadius: 5,
           ),
@@ -328,7 +328,7 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
                 color: const Color(0xFFF3F4F6),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -350,7 +350,6 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
   void _onPageChanged(int index) {
     // Only allow page changes to the expected page set by navigation buttons
     if (_expectedNextPage != index) {
-      print('DEBUG: Blocked unauthorized page change from $_currentChapter to $index (expected: $_expectedNextPage)');
       // Force the page back to current chapter
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_pageController.hasClients && _pageController.page != _currentChapter.toDouble()) {
@@ -364,8 +363,6 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
       _expectedNextPage = null; // Clear expected page
       return;
     }
-
-    print('DEBUG: Authorized page change from $_currentChapter to $index');
 
     setState(() {
       _currentChapter = index;
@@ -468,7 +465,6 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
   void _goToNext() {
     if (_currentChapter < StoryData.chapters.length - 1) {
       final nextPage = _currentChapter + 1;
-      print('DEBUG: Next button pressed - expecting page change to $nextPage');
       _expectedNextPage = nextPage; // Set the expected page BEFORE navigation
       _pageController.nextPage(
         duration: const Duration(milliseconds: 600),
@@ -480,7 +476,6 @@ class _StoryScreenState extends State<StoryScreen> with TickerProviderStateMixin
   void _goToPrevious() {
     if (_currentChapter > 0) {
       final prevPage = _currentChapter - 1;
-      print('DEBUG: Previous button pressed - expecting page change to $prevPage');
       _expectedNextPage = prevPage; // Set the expected page BEFORE navigation
       _pageController.previousPage(
         duration: const Duration(milliseconds: 600),

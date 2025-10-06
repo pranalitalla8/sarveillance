@@ -26,7 +26,7 @@ class EnvironmentalHeatmap extends StatelessWidget {
 
         return CircleMarker(
           point: LatLng(point.latitude, point.longitude),
-          color: color.withOpacity(opacity),
+          color: color.withValues(alpha: opacity),
           borderColor: Colors.transparent,
           borderStrokeWidth: 0,
           radius: 15, // Larger for heatmap effect

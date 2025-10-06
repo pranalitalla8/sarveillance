@@ -67,7 +67,7 @@ class SpillDetailPopup extends StatelessWidget {
                         Text(
                           '━━━━━━━━━━━━━━━━━━',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                             fontSize: 12,
                           ),
                         ),
@@ -187,12 +187,12 @@ class SpillDetailPopup extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: spillData.isOilCandidate
-                            ? Colors.red.withOpacity(0.1)
-                            : Colors.blue.withOpacity(0.1),
+                            ? Colors.red.withValues(alpha: 0.1)
+                            : Colors.blue.withValues(alpha: 0.1),
                         border: Border.all(
                           color: spillData.isOilCandidate
-                              ? Colors.red.withOpacity(0.3)
-                              : Colors.blue.withOpacity(0.3),
+                              ? Colors.red.withValues(alpha: 0.3)
+                              : Colors.blue.withValues(alpha: 0.3),
                           width: 2,
                         ),
                         borderRadius: BorderRadius.circular(12),

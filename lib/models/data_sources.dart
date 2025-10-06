@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// Model for Chesapeake Bay shapefile data
 class ChesapeakeBayData {
   final String name;

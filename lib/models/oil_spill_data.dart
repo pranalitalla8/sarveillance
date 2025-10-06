@@ -86,15 +86,6 @@ class OilSpillData {
       return row[key] ?? row[key.toLowerCase()] ?? row[key.toUpperCase()];
     }
 
-    // Debug: Print NASA POWER values for first row
-    if (row['system:index']?.toString().contains('0_1_33') == true) {
-      print('DEBUG NASA POWER DATA for first row:');
-      print('  nasa_power_air_temp_2m: ${getValue('nasa_power_air_temp_2m')}');
-      print('  nasa_power_max_air_temp_2m: ${getValue('nasa_power_max_air_temp_2m')}');
-      print('  nasa_power_min_air_temp_2m: ${getValue('nasa_power_min_air_temp_2m')}');
-      print('  All keys: ${row.keys.where((k) => k.contains('nasa')).toList()}');
-    }
-
     return OilSpillData(
       systemIndex: getValue('system:index')?.toString() ?? '',
       longitude: _parseDouble(getValue('longitude')),

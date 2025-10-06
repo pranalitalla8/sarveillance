@@ -152,7 +152,7 @@ class _DateRangeFilterState extends State<DateRangeFilter> {
                 color: Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -165,7 +165,7 @@ class _DateRangeFilterState extends State<DateRangeFilter> {
                         Text(
                           'Start Date',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                               ),
                         ),
                         const SizedBox(height: 4),
@@ -186,7 +186,7 @@ class _DateRangeFilterState extends State<DateRangeFilter> {
                         Text(
                           'End Date',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                               ),
                         ),
                         const SizedBox(height: 4),
@@ -221,7 +221,7 @@ class _DateRangeFilterState extends State<DateRangeFilter> {
             Text(
               _getDateRangeInfo(),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
               textAlign: TextAlign.center,
             ),

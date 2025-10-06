@@ -75,7 +75,7 @@ class _AliceThemedBackgroundState extends State<AliceThemedBackground>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: currentGradient.map((color) =>
-                color.withOpacity((0.7 + (0.3 * animationValue)).clamp(0.0, 1.0))
+                color.withValues(alpha: (0.7 + (0.3 * animationValue)).clamp(0.0, 1.0))
               ).toList(),
             ),
           ),
@@ -246,8 +246,8 @@ class _AliceThemedBackgroundState extends State<AliceThemedBackground>
               radius: 1.5 + (0.5 * _rabbitHoleController.value),
               colors: [
                 Colors.transparent,
-                Colors.black.withOpacity(0.3),
-                Colors.black.withOpacity(0.8),
+                Colors.black.withValues(alpha: 0.3),
+                Colors.black.withValues(alpha: 0.8),
               ],
               stops: const [0.0, 0.7, 1.0],
             ),
@@ -280,45 +280,45 @@ class _AliceThemedBackgroundState extends State<AliceThemedBackground>
     switch (widget.currentChapter) {
       case 0: // Rabbit Hole
         return [
-          {'icon': Icons.access_time, 'size': 24.0, 'color': Colors.white.withOpacity(0.6)},
-          {'icon': Icons.pets, 'size': 20.0, 'color': Colors.white.withOpacity(0.4)},
-          {'icon': Icons.star, 'size': 16.0, 'color': Colors.yellow.withOpacity(0.5)},
+          {'icon': Icons.access_time, 'size': 24.0, 'color': Colors.white.withValues(alpha: 0.6)},
+          {'icon': Icons.pets, 'size': 20.0, 'color': Colors.white.withValues(alpha: 0.4)},
+          {'icon': Icons.star, 'size': 16.0, 'color': Colors.yellow.withValues(alpha: 0.5)},
         ];
       case 1: // Pristine Waters
         return [
-          {'icon': Icons.water_drop, 'size': 20.0, 'color': Colors.blue.withOpacity(0.6)},
-          {'icon': Icons.sailing, 'size': 24.0, 'color': Colors.white.withOpacity(0.5)},
-          {'icon': Icons.eco, 'size': 18.0, 'color': Colors.green.withOpacity(0.4)},
+          {'icon': Icons.water_drop, 'size': 20.0, 'color': Colors.blue.withValues(alpha: 0.6)},
+          {'icon': Icons.sailing, 'size': 24.0, 'color': Colors.white.withValues(alpha: 0.5)},
+          {'icon': Icons.eco, 'size': 18.0, 'color': Colors.green.withValues(alpha: 0.4)},
         ];
       case 2: // Tea Party Chaos
         return [
-          {'icon': Icons.local_cafe, 'size': 22.0, 'color': Colors.brown.withOpacity(0.6)},
-          {'icon': Icons.cake, 'size': 20.0, 'color': Colors.pink.withOpacity(0.5)},
-          {'icon': Icons.schedule, 'size': 18.0, 'color': Colors.red.withOpacity(0.4)},
+          {'icon': Icons.local_cafe, 'size': 22.0, 'color': Colors.brown.withValues(alpha: 0.6)},
+          {'icon': Icons.cake, 'size': 20.0, 'color': Colors.pink.withValues(alpha: 0.5)},
+          {'icon': Icons.schedule, 'size': 18.0, 'color': Colors.red.withValues(alpha: 0.4)},
         ];
       case 3: // Looking Glass
         return [
-          {'icon': Icons.auto_awesome, 'size': 24.0, 'color': Colors.purple.withOpacity(0.6)},
-          {'icon': Icons.flip, 'size': 20.0, 'color': Colors.white.withOpacity(0.5)},
-          {'icon': Icons.camera_alt, 'size': 18.0, 'color': Colors.cyan.withOpacity(0.4)},
+          {'icon': Icons.auto_awesome, 'size': 24.0, 'color': Colors.purple.withValues(alpha: 0.6)},
+          {'icon': Icons.flip, 'size': 20.0, 'color': Colors.white.withValues(alpha: 0.5)},
+          {'icon': Icons.camera_alt, 'size': 18.0, 'color': Colors.cyan.withValues(alpha: 0.4)},
         ];
       case 4: // Cheshire Cat
         return [
-          {'icon': Icons.visibility_off, 'size': 22.0, 'color': Colors.purple.withOpacity(0.6)},
-          {'icon': Icons.pets, 'size': 20.0, 'color': Colors.pink.withOpacity(0.5)},
-          {'icon': Icons.search, 'size': 18.0, 'color': Colors.green.withOpacity(0.4)},
+          {'icon': Icons.visibility_off, 'size': 22.0, 'color': Colors.purple.withValues(alpha: 0.6)},
+          {'icon': Icons.pets, 'size': 20.0, 'color': Colors.pink.withValues(alpha: 0.5)},
+          {'icon': Icons.search, 'size': 18.0, 'color': Colors.green.withValues(alpha: 0.4)},
         ];
       case 5: // Neighborhood
         return [
-          {'icon': Icons.home, 'size': 24.0, 'color': Colors.orange.withOpacity(0.6)},
-          {'icon': Icons.location_on, 'size': 20.0, 'color': Colors.red.withOpacity(0.5)},
-          {'icon': Icons.family_restroom, 'size': 18.0, 'color': Colors.blue.withOpacity(0.4)},
+          {'icon': Icons.home, 'size': 24.0, 'color': Colors.orange.withValues(alpha: 0.6)},
+          {'icon': Icons.location_on, 'size': 20.0, 'color': Colors.red.withValues(alpha: 0.5)},
+          {'icon': Icons.family_restroom, 'size': 18.0, 'color': Colors.blue.withValues(alpha: 0.4)},
         ];
       case 6: // Queen's Decree
         return [
           {'icon': Icons.gavel, 'size': 24.0, 'color': const Color(0xFFFFD700).withValues(alpha: 0.6)},
-          {'icon': Icons.policy, 'size': 20.0, 'color': Colors.red.withOpacity(0.5)},
-          {'icon': Icons.security, 'size': 18.0, 'color': Colors.white.withOpacity(0.4)},
+          {'icon': Icons.policy, 'size': 20.0, 'color': Colors.red.withValues(alpha: 0.5)},
+          {'icon': Icons.security, 'size': 18.0, 'color': Colors.white.withValues(alpha: 0.4)},
         ];
       default:
         return [];
@@ -343,7 +343,7 @@ class RabbitHolePainter extends CustomPainter {
     // Draw spiral rabbit hole
     for (int i = 0; i < 8; i++) {
       final radius = 50.0 + (i * 30) + (20 * math.sin(animation * 2 * math.pi + i));
-      paint.color = Colors.white.withOpacity(0.1 - (i * 0.01));
+      paint.color = Colors.white.withValues(alpha: 0.1 - (i * 0.01));
       canvas.drawCircle(center, radius, paint);
     }
   }
@@ -365,7 +365,7 @@ class WaterWavesPainter extends CustomPainter {
 
     for (int i = 0; i < 5; i++) {
       final path = Path();
-      paint.color = Colors.blue.withOpacity(0.3 - (i * 0.05));
+      paint.color = Colors.blue.withValues(alpha: 0.3 - (i * 0.05));
 
       for (double x = 0; x <= size.width; x += 5) {
         final y = size.height * 0.7 +
@@ -399,7 +399,7 @@ class TeaPartyChaosPainter extends CustomPainter {
       final x = (size.width / 4) * (i % 4) + (50 * math.sin(animation * 2 * math.pi + i));
       final y = (size.height / 3) * (i % 3) + (30 * math.cos(animation * 2 * math.pi + i));
 
-      paint.color = (i % 2 == 0) ? Colors.red.withOpacity(0.2) : Colors.black.withOpacity(0.2);
+      paint.color = (i % 2 == 0) ? Colors.red.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.2);
 
       canvas.save();
       canvas.translate(x, y);
@@ -432,7 +432,7 @@ class MirrorEffectPainter extends CustomPainter {
 
     for (int i = 0; i < 10; i++) {
       final offset = (i * 20) + (10 * math.sin(animation * 2 * math.pi + i));
-      paint.color = Colors.white.withOpacity(0.2 - (i * 0.01));
+      paint.color = Colors.white.withValues(alpha: 0.2 - (i * 0.01));
 
       // Left side
       canvas.drawLine(
@@ -468,7 +468,7 @@ class ForestShadowsPainter extends CustomPainter {
       final x = (size.width / 8) * i;
       final height = 100 + (50 * math.sin(animation * math.pi + i));
 
-      paint.color = Colors.black.withOpacity(0.1 + (0.1 * math.sin(animation * 2 * math.pi + i)));
+      paint.color = Colors.black.withValues(alpha: 0.1 + (0.1 * math.sin(animation * 2 * math.pi + i)));
 
       final path = Path();
       path.moveTo(x, size.height);
@@ -498,7 +498,7 @@ class LocalWatersPainter extends CustomPainter {
 
     // Draw familiar coastline silhouette
     final path = Path();
-    paint.color = Colors.white.withOpacity(0.3);
+    paint.color = Colors.white.withValues(alpha: 0.3);
 
     for (double x = 0; x <= size.width; x += 10) {
       final y = size.height * 0.6 +
@@ -534,8 +534,8 @@ class RoyalGardenPainter extends CustomPainter {
         final y = (size.height / 4) * row + 50;
 
         paint.color = ((row + col) % 2 == 0)
-          ? Colors.red.withOpacity(0.2 + (0.1 * math.sin(animation * 2 * math.pi)))
-          : Colors.white.withOpacity(0.1 + (0.1 * math.cos(animation * 2 * math.pi)));
+          ? Colors.red.withValues(alpha: 0.2 + (0.1 * math.sin(animation * 2 * math.pi)))
+          : Colors.white.withValues(alpha: 0.1 + (0.1 * math.cos(animation * 2 * math.pi)));
 
         canvas.drawCircle(Offset(x, y), 15, paint);
       }
@@ -562,7 +562,7 @@ class TwinklingStarsPainter extends CustomPainter {
       final y = random.nextDouble() * size.height * 0.6; // Only in upper part
 
       final opacity = (0.3 + (0.7 * math.sin(animation * 2 * math.pi + i))).clamp(0.0, 1.0);
-      paint.color = Colors.white.withOpacity(opacity);
+      paint.color = Colors.white.withValues(alpha: opacity);
 
       canvas.drawCircle(Offset(x, y), 1 + (1 * opacity), paint);
     }
