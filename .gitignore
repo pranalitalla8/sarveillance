@@ -45,7 +45,8 @@ app.*.map.json
 /android/app/release
 
 # API Keys and Secrets
-secrets.dart
+# NOTE: secrets.dart is temporarily included for NASA Space Apps judging
+# secrets.dart
 ios/Runner/Secrets.plist
 android/local.properties
 

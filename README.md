@@ -129,6 +129,8 @@ nasa-sar-backend/
 
 ### Installation
 
+> **📋 Note for Judges:** Google Maps API key is included in `lib/config/secrets.dart` for evaluation purposes. This key will be regenerated after the competition. For production use, API keys should never be committed to version control.
+
 1. Clone the repository:
 ```bash
 git clone <repository-url>
@@ -140,13 +142,14 @@ cd sarveillance
 flutter pub get
 ```
 
-3. Set up the backend (optional, for GEE tiles):
+3. Set up the backend (optional, for live SAR imagery overlays):
 ```bash
 cd ../nasa-sar-backend
 pip install -r requirements.txt
-# Add your Earth Engine credentials to .env
+# Follow nasa-sar-backend/README.md for Earth Engine setup
 python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
+**Note:** The app works fully without the backend - it includes 15,267 pre-processed oil detections. The backend only adds live SAR imagery overlay tiles from Google Earth Engine.
 
 4. Run the app:
 ```bash

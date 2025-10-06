@@ -2,11 +2,22 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class GEETileService {
-  // Backend URL for local development
-  // iOS simulator can't use 'localhost' - must use Mac's IP address
+  // ============================================================================
+  // BACKEND CONFIGURATION
+  // ============================================================================
+  // NOTE: For demo/judging, this backend URL points to a local development server.
+  // Judges should run the FastAPI backend locally (see nasa-sar-backend/README.md):
+  //   cd nasa-sar-backend
+  //   pip install -r requirements.txt
+  //   python3 -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+  //
+  // The app will continue to function without the backend - it will show the
+  // 15,267 oil detection points from the CSV dataset. The backend only provides
+  // the live SAR imagery overlay tiles from Google Earth Engine.
+  // ============================================================================
   static const String baseUrl = 'http://192.168.4.76:8000';
 
-  // For deployed backend, use your Cloud Run URL:
+  // For deployed production backend:
   // static const String baseUrl = 'https://sar-backend-xxx-uc.a.run.app';
 
   /// Get Sentinel-1 SAR imagery tile URL from Earth Engine
